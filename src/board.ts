@@ -21,7 +21,7 @@ export const SQ = {
   b: 0b0001_0000,    //| black:              16
   c: 0b0010_0000,    //| can castle (king):  32
   m: 0b0100_0000,    //| piece has moved:    64
-}
+};
 
 /** REVERSE SQ LOOKUP */
 export const SQ_R = {
@@ -35,7 +35,7 @@ export const SQ_R = {
   0b0001_0000: "b",
   0b0010_0000: "c",
   0b0100_0000: "m",
-}
+};
 
 /**
 * MOVE DIRECTIONS
@@ -51,7 +51,7 @@ export const NESW = {
   NW: -11,
   SE: 11,
   SW: 9,
-}
+};
 
 
 /**
@@ -59,13 +59,13 @@ export const NESW = {
 * can be accessed using the the piece value (excl. black pawn). i.e. knight = 2 = MOVES_LIST[2]
 */
 export const MOVES_LIST = [
-/* black pawn */ [(NESW.S), (NESW.S + NESW.S), (NESW.SE), (NESW.SW)],
-/* white pawn */ [(NESW.N), (NESW.N + NESW.N), (NESW.NE), (NESW.NW)],
-/*     knight */ [(NESW.N + NESW.NE), (NESW.N + NESW.NW), (NESW.E + NESW.NE), (NESW.E + NESW.SE), (NESW.S + NESW.SE), (NESW.S + NESW.SW), (NESW.W + NESW.NW), (NESW.W + NESW.SW)],
-/*     bishop */ [(NESW.NE), (NESW.NW), (NESW.SE), (NESW.SW)],
-/*       rook */ [(NESW.N), (NESW.S), (NESW.E), (NESW.W)],
-/*      queen */ [(NESW.N), (NESW.S), (NESW.E), (NESW.W), (NESW.NE), (NESW.NW), (NESW.SE), (NESW.SW)],
-/*       king */ [(NESW.N), (NESW.S), (NESW.E), (NESW.W), (NESW.NE), (NESW.NW), (NESW.SE), (NESW.SW)]
+  /* black pawn */ [(NESW.S), (NESW.S + NESW.S), (NESW.SE), (NESW.SW)],
+  /* white pawn */ [(NESW.N), (NESW.N + NESW.N), (NESW.NE), (NESW.NW)],
+  /*     knight */ [(NESW.N + NESW.NE), (NESW.N + NESW.NW), (NESW.E + NESW.NE), (NESW.E + NESW.SE), (NESW.S + NESW.SE), (NESW.S + NESW.SW), (NESW.W + NESW.NW), (NESW.W + NESW.SW)],
+  /*     bishop */ [(NESW.NE), (NESW.NW), (NESW.SE), (NESW.SW)],
+  /*       rook */ [(NESW.N), (NESW.S), (NESW.E), (NESW.W)],
+  /*      queen */ [(NESW.N), (NESW.S), (NESW.E), (NESW.W), (NESW.NE), (NESW.NW), (NESW.SE), (NESW.SW)],
+  /*       king */ [(NESW.N), (NESW.S), (NESW.E), (NESW.W), (NESW.NE), (NESW.NW), (NESW.SE), (NESW.SW)]
 ];
 
 
@@ -74,13 +74,13 @@ export const MOVES_LIST = [
 * can be accessed using the the piece value (excl. black pawn). i.e. knight = 2 = MOVES_LIST[2]
 */
 export const SLIDERS = [
-/* black pawn */ false,
-/* white pawn */ false,
-/*     knight */ false,
-/*     bishop */ true,
-/*       rook */ true,
-/*      queen */ true,
-/*       king */ false
+  /* black pawn */ false,
+  /* white pawn */ false,
+  /*     knight */ false,
+  /*     bishop */ true,
+  /*       rook */ true,
+  /*      queen */ true,
+  /*       king */ false
 ];
 
 
@@ -138,27 +138,10 @@ export const mailbox120 = new Int8Array([
 ]);
 
 
-
-
-/**
- * THE INITIAL CHESS POSITION
- */
-const INITIAL_BOARD = new Int8Array([
-  (SQ.b | SQ.R), (SQ.b | SQ.N), (SQ.b | SQ.B), (SQ.b | SQ.Q), (SQ.b | SQ.K | SQ.c), (SQ.b | SQ.B), (SQ.b | SQ.N), (SQ.b | SQ.R),
-  (SQ.b | SQ.P), (SQ.b | SQ.P), (SQ.b | SQ.P), (SQ.b | SQ.P), (SQ.b | SQ.P), (SQ.b | SQ.P), (SQ.b | SQ.P), (SQ.b | SQ.P),
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  (SQ.w | SQ.P), (SQ.w | SQ.P), (SQ.w | SQ.P), (SQ.w | SQ.P), (SQ.w | SQ.P), (SQ.w | SQ.P), (SQ.w | SQ.P), (SQ.w | SQ.P),
-  (SQ.w | SQ.R), (SQ.w | SQ.N), (SQ.w | SQ.B), (SQ.w | SQ.Q), (SQ.w | SQ.K | SQ.c), (SQ.w | SQ.B), (SQ.w | SQ.N), (SQ.w | SQ.R)
-]);
-
-
 /**
  * PADS A []64 BOARD WITH -1'S TO MAKE []120
  */
-function padBoard(inpBoard: Int8Array) {
+export function padBoard(inpBoard: Int8Array) {
   const outBoard = new Int8Array([...mailbox120]);
   mailbox64.forEach((mi, i) => {
     outBoard[mi] = inpBoard[i];
@@ -182,7 +165,7 @@ export const PIECE_CH = {
   0b0001_0100: "r",
   0b0001_0101: "q",
   0b0001_0110: "k",
-}
+};
 
 /** UNICODE MAPPINGS */
 export const PIECE_UTF = {
@@ -199,14 +182,14 @@ export const PIECE_UTF = {
   0b0001_0100: "♜",
   0b0001_0101: "♛",
   0b0001_0110: "♚",
-}
+};
 
 
 /**
  * PRINTS BOARD TO TERMINAL
  * can use decimal, character, or unicode notation
  */
-function printBoard(board120: Int8Array, pieceSymbol: "decimal" | "character" | "unicode" = "unicode") {
+export function printBoard(board120: Int8Array, pieceSymbol: "decimal" | "character" | "unicode" = "unicode") {
   process.stdout.write(" +---------------------------+\n");
   process.stdout.write("+-----------------------------+\n| |");
 
@@ -215,21 +198,21 @@ function printBoard(board120: Int8Array, pieceSymbol: "decimal" | "character" | 
     if (i % 10 === 9) { process.stdout.write(" | |\n"); continue; }
 
     let square = "";
-    let piece = board120[i] & 0b0001_0111;  // get *only* the piece and colour value for lookup
+    const piece = board120[i] & 0b0001_0111;  // get *only* the piece and colour value for lookup
 
     switch (pieceSymbol) {
-      case "decimal":
-        square = String(board120[i]);
-        break;
-      case "character":
-        square = ` ${PIECE_CH[piece as keyof typeof PIECE_CH]} `;
-        break;
-      case "unicode":
-        square = ` ${PIECE_UTF[piece as keyof typeof PIECE_UTF]} `;
-        break;
-      default:
-        square = "ERR";
-        break;
+    case "decimal":
+      square = String(board120[i]);
+      break;
+    case "character":
+      square = ` ${PIECE_CH[piece as keyof typeof PIECE_CH]} `;
+      break;
+    case "unicode":
+      square = ` ${PIECE_UTF[piece as keyof typeof PIECE_UTF]} `;
+      break;
+    default:
+      square = "ERR";
+      break;
     }
 
     square = square.padStart(3);
@@ -239,11 +222,3 @@ function printBoard(board120: Int8Array, pieceSymbol: "decimal" | "character" | 
   process.stdout.write(" | |\n+-----------------------------+\n");
   process.stdout.write(" +---------------------------+\n");
 }
-
-
-
-/**
- * USAGE & TESTING
- */
-const board = padBoard(INITIAL_BOARD);
-printBoard(board, "unicode");

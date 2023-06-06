@@ -33,7 +33,8 @@
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "no-constant-condition": "off"
     },
     "ignorePatterns": [ "node_modules", "dist", "tsconfig.json" ]
 }

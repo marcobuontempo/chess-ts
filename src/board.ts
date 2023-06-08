@@ -1,8 +1,25 @@
 export default class ChessBoard {
-  board: Int8Array;
+  board: Int8Array = new Int8Array(120);            // 10x12 board - represented as a 1D array
+  castle: Int8Array = new Int8Array(4);             // castle rights available [wK, wQ, bK, bQ]
+  enpassant: Number = 0;                            // 10x12 index for the enpassant target square
+  halfmove: Number = 0;                             // halfmove clock for 50 move rule
+  fullmove: Number = 0;                             // fullmove clock
+  turn: Number = 0;                                 // current turn: 0 white, 1 black
 
-  constructor(board8x8: Int8Array) {
-    this.board = ChessBoard.padBoard(board8x8);
+
+  constructor(fen: string) {
+    this.initBoardState(fen);
+  }
+
+  initBoardState(fen: string) {
+    const { board, turn, castle, enpassant, halfmove, fullmove } = ChessBoard.parseFEN(fen);
+    this.board = board;
+    this.turn = turn;
+    this.castle = castle;
+    this.enpassant = enpassant;
+    this.halfmove = halfmove;
+    this.fullmove = fullmove;
+    this.turn = turn;
   }
 
   /**
@@ -131,11 +148,109 @@ export default class ChessBoard {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   ]);
 
+  /**
+   * converts FEN string into data values
+   */
+  static parseFEN(fen: string) {
+    // Object to store output data
+    const output = {
+      board: new Int8Array(120),
+      turn: 0,
+      castle: new Int8Array(4),
+      enpassant: 0,
+      halfmove: 0,
+      fullmove: 0
+    }
+
+    // Split each segment of FEN
+    const [fenBoard, fenTurn, fenCastle, fenEnPassant, fenHalfMove, fenFullMove] = fen.split(" ");
+
+    // Convert halfmove and fullmove to Integers
+    output.halfmove = parseInt(fenHalfMove);
+    output.fullmove = parseInt(fenFullMove);
+
+    // Convert En Passant Square to 10x12 index
+    if (fenEnPassant !== "-") {
+      const file = fenEnPassant[0].toLowerCase().charCodeAt(0) - 97;
+      const rank = 8 - parseInt(fenEnPassant[1]);
+      const index64 = rank * 8 + file;
+      output.enpassant = ChessBoard.mailbox64[index64];
+    }
+
+    // Convert castle information to an array
+    if (fenCastle.includes("K")) output.castle[0] = 1;
+    if (fenCastle.includes("Q")) output.castle[1] = 1;
+    if (fenCastle.includes("k")) output.castle[2] = 1;
+    if (fenCastle.includes("q")) output.castle[3] = 1;
+
+    // Convert turn to data
+    output.turn = ChessBoard.SQ[fenTurn as keyof typeof ChessBoard.SQ];
+
+    // Convert board string into array
+    const fenBoardFormatted = fenBoard.replace(/\//g, ""); // Remove newlines '/'
+    const board64 = new Int8Array(64);  // Initialise an empty array
+    for (let i = 0, j = 0; i < fenBoardFormatted.length; i++, j++) {
+      const fenCh = fenBoardFormatted[i];
+      if (!isNaN(parseInt(fenCh))) { // Skip # of blank sqaures
+        j += parseInt(fenCh) - 1;
+        continue;
+      }
+
+      // Get square information
+      const piece = ChessBoard.SQ[fenCh.toUpperCase() as keyof typeof ChessBoard.SQ];
+      const colour = fenCh === fenCh.toUpperCase() ? ChessBoard.SQ.w : ChessBoard.SQ.b;
+      let flags = 0;
+
+      // Set flags for king castling (set 'can castle' if either king-side or queen-side available)
+      if ((fenCh === "K" && (output.castle[0] === 1 || output.castle[1] === 1)) ||
+        (fenCh === "k" && (output.castle[2] === 1 || output.castle[3] === 1))) {
+        flags = flags | ChessBoard.SQ.c;
+      }
+      if ((fenCh === "K" && output.castle[0] === 0 && output.castle[1] === 0) ||
+        (fenCh === "k" && output.castle[2] === 0 && output.castle[3] === 0)) {
+        flags = flags | ChessBoard.SQ.m;
+      }
+
+      // Set flags for rook (set to 'piece moved' if castle is unavailable)
+      if ((fenCh === "R" && j === 63 && output.castle[0] === 0) ||
+        (fenCh === "R" && j === 56 && output.castle[1] === 0) ||
+        (fenCh === "r" && j === 7 && output.castle[2] === 0) ||
+        (fenCh === "r" && j === 0 && output.castle[3] === 0)) {
+        flags = flags | ChessBoard.SQ.m;
+      }
+
+      // Encode square
+      board64[j] = piece | colour | flags;
+    }
+
+    // Pad 64 board into 120
+    output.board = ChessBoard.padBoard(board64);
+
+    return output;
+  }
 
   /**
-   * PRINTS CURRENT BOARD TO TERMINAL
-   * can use decimal, character, or unicode notation
+   * converts 10x12 board state array into a FEN string
    */
+  static stringifyFEN(board10x12: Int8Array) {
+    // TODO
+  }
+
+  /**
+  * PADS A []64 BOARD WITH -1'S TO MAKE []120
+  */
+  static padBoard(inpBoard: Int8Array) {
+    const outBoard = new Int8Array([...ChessBoard.mailbox120]);
+    ChessBoard.mailbox64.forEach((mi, i) => {
+      outBoard[mi] = inpBoard[i];
+    });
+    return outBoard;
+  }
+
+  /**
+  * PRINTS CURRENT BOARD STATE TO TERMINAL
+  * can use decimal, character, or unicode notation
+  */
   printBoard(pieceSymbol: "decimal" | "character" | "unicode" = "unicode") {
     process.stdout.write(" +---------------------------+\n");
     process.stdout.write("+-----------------------------+\n| |");
@@ -148,18 +263,18 @@ export default class ChessBoard {
       const piece = this.board[i] & 0b0001_0111;  // get *only* the piece and colour value for lookup
 
       switch (pieceSymbol) {
-      case "decimal":
-        square = String(this.board[i]);
-        break;
-      case "character":
-        square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
-        break;
-      case "unicode":
-        square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
-        break;
-      default:
-        square = "ERR";
-        break;
+        case "decimal":
+          square = String(this.board[i]);
+          break;
+        case "character":
+          square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
+          break;
+        case "unicode":
+          square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
+          break;
+        default:
+          square = "ERR";
+          break;
       }
 
       square = square.padStart(3);
@@ -168,17 +283,5 @@ export default class ChessBoard {
 
     process.stdout.write(" | |\n+-----------------------------+\n");
     process.stdout.write(" +---------------------------+\n");
-  }
-
-
-  /**
-  * PADS A []64 BOARD WITH -1'S TO MAKE []120
-  */
-  static padBoard(inpBoard: Int8Array) {
-    const outBoard = new Int8Array([...ChessBoard.mailbox120]);
-    ChessBoard.mailbox64.forEach((mi, i) => {
-      outBoard[mi] = inpBoard[i];
-    });
-    return outBoard;
   }
 }

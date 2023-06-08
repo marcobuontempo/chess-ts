@@ -1,31 +1,10 @@
 import ChessBoard from "./board";
 
-/**
- * THE INITIAL CHESS POSITION
- */
-const INITIAL_BOARD = new Int8Array([
-  20, 18, 19, 21, 54, 19, 18, 20,
-  17, 17, 17, 17, 17, 17, 17, 17,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  1, 1, 1, 1, 1, 1, 1, 1,
-  4, 2, 3, 5, 38, 3, 2, 4
-]);
-
-
 export default class Engine {
   chessboard: ChessBoard;
-  board: Int8Array;
-  currentTurn: number;
-  enpassant: number;
 
-  constructor() {
-    this.chessboard = new ChessBoard(INITIAL_BOARD);
-    this.board = this.chessboard.board;
-    this.currentTurn = ChessBoard.SQ.w;
-    this.enpassant = 0;
+  constructor(fen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+    this.chessboard = new ChessBoard(fen);
   }
 
   /**
@@ -80,11 +59,11 @@ export default class Engine {
   generateMoves() {
     for (let i = 0; i < 64; i++) {
       const mb = ChessBoard.mailbox64[i];  // get the mailbox index for the padded board
-      const from = this.board[mb];
+      const from = this.chessboard.board[mb];
       const piece = from & 0b0000_0111; // check the piece type only
       const colour = from & 0b0001_0000;  // check the piece colour only
 
-      if (piece !== 0 && colour === this.currentTurn) {
+      if (piece !== 0 && colour === this.chessboard.turn) {
         if (piece == ChessBoard.SQ.P) {
           // TODO: SPECIAL PAWN MOVE GENERATION
           continue;
@@ -92,9 +71,9 @@ export default class Engine {
           for (let j = 0; j < Engine.MOVES_LIST[piece].length; j++) { // iterate through the piece's possible move directions
             const offset = Engine.MOVES_LIST[piece][j];  // the direction to move
             while (true) { // infinite loop until a break is hit. i.e. edge of board, capture, etc.
-              const to = this.board[mb + offset]; // the new square to move to
+              const to = this.chessboard.board[mb + offset]; // the new square to move to
               if (to === -1) break; // off edge of board
-              if ((to & 0b0000_0111) !== 0 && (to & 0b0001_0000) === this.currentTurn) break; // occupied by same colour piece
+              if ((to & 0b0000_0111) !== 0 && (to & 0b0001_0000) === this.chessboard.turn) break; // occupied by same colour piece
               // TODO: ADD MOVE TO STACK
               if (Engine.SLIDERS[piece] === false) break;  // it shouldn't progress more than 1 step in any direction if it isn't a slider piece
             }
@@ -107,5 +86,5 @@ export default class Engine {
 }
 
 const test = new Engine();
-test.chessboard.printBoard();
+test.chessboard.printBoard("unicode");
 // test.generateMoves();

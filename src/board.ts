@@ -7,7 +7,7 @@ export default class ChessBoard {
   turn: Number = 0;                                 // current turn: 0 white, 1 black
 
 
-  constructor(fen: string) {
+  constructor(fen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     this.initBoardState(fen);
   }
 
@@ -209,6 +209,14 @@ export default class ChessBoard {
         (fenCh === "k" && (output.castle[2] === 1 || output.castle[3] === 1))) {
         flags = flags | ChessBoard.SQ.c & ~ChessBoard.SQ.m;
       }
+
+      // Set flags for rook (set to 'piece unmoved' if castle is available)
+      if ((fenCh === "R" && j === 63 && output.castle[0] === 1) ||
+      (fenCh === "R" && j === 56 && output.castle[1] === 1) ||
+      (fenCh === "r" && j === 7 && output.castle[2] === 1) ||
+      (fenCh === "r" && j === 0 && output.castle[3] === 1)) {
+        flags = flags & ~ChessBoard.SQ.m;
+    }
 
       // Set flags for pawns on starting rank
       if ((piece === ChessBoard.SQ.P) && 

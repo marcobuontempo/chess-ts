@@ -54,7 +54,7 @@ export default class Engine {
 
 
   /**
-   * STORES THE MOVE INFORMATION ENCODED INTO A 32UInt
+   * ENCODES THE MOVE INFORMATION ENCODED INTO A 32UInt
    * 
    *   | U  | K  | C  |  P |    T    |    F   |
    * 0b 0000_0000_0000_0000_0000_0000_0000_0000
@@ -67,15 +67,26 @@ export default class Engine {
    * (F)ROM: 10x12 index of square to move from
    */
   static encodeMoveData(castle: number, capture: number, promotion: number, from: number, to: number) {
-    let move = (castle << 24) | (capture << 20) | (promotion << 16) | (from << 8) | (to);
-    return move;
+    return (castle << 24) | (capture << 20) | (promotion << 16) | (from << 8) | (to);
   }
 
+  /**
+   * DECODES MOVE INFORMATION INTO AN OBJECT
+   */
+  static decodeMoveData(move: number) {
+    return {
+      castle: (move & 0b0000_1111_0000_0000_0000_0000_0000_0000) >> 24,
+      capture: (move & 0b0000_0000_1111_0000_0000_0000_0000_0000) >> 20,
+      promotion: (move & 0b0000_0000_0000_1111_0000_0000_0000_0000) >> 16,
+      from: (move & 0b0000_0000_0000_0000_1111_1111_0000_0000) >> 8,
+      to: (move & 0b0000_0000_0000_0000_0000_0000_1111_1111),
+    }
+  }
 
   /**
    * PSEUDO-LEGAL MOVE GENERATOR
    */
-  generateMoves() {
+  generatePseudoMoves() {
     const pseudoMoves = new Uint32Array(218); // to store each move's data. can only be <= 218 moves in a chess position. set array size for better performance vs .push()
     let pmIdx = 0; // current index to store pseudo move
 
@@ -159,28 +170,53 @@ export default class Engine {
         }
       }
 
-      // CASTLING
+      // CASTLING - TODO: FIX LOGIC
       if ((pieceFrom === ChessBoard.SQ.K) && (squareFrom !== ChessBoard.SQ.m)) { // check king hasn't moved
         if (colourFrom === ChessBoard.SQ.w) { // white
           const squareRookKing = this.chessboard.board[98]; // kingside Rook
           const squareRookQueen = this.chessboard.board[91];  // queenside Rook
           // Check if rook is on starting square and hasn't moved
-          if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m)) Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.E));
-          if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m)) Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.W));
+          if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m) === 0) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.E));
+            pmIdx++;
+          }
+          if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m) === 0) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.W));
+            pmIdx++;
+          }
         } else {  // black  
           const squareRookKing = this.chessboard.board[28]; // kingside Rook
           const squareRookQueen = this.chessboard.board[21];  // queenside Rook
           // Check if rook is on starting square and hasn't moved
-          if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m)) Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.E));
-          if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m)) Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.W));
+          if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m) === 0) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.E));
+            pmIdx++;
+          }
+          if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m) === 0) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.W));
+            pmIdx++;
+          }
         }
       }
     }
 
     return pseudoMoves;
   }
+
+
+  /**
+   * TODO: MAKE MOVE ()
+   */
+
+  /**
+   * TODO: UNMAKE MOVE ()
+   */
 }
 
-const test = new Engine("R7/8/8/8/8/8/8 w - - 0 1");
+const test = new Engine("8/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
 test.chessboard.printBoard("unicode");
-const moves = test.generateMoves();
+const moves = test.generatePseudoMoves();
+moves.forEach(move => {
+  if (move === 0) return;
+  console.log(Engine.decodeMoveData(move));
+})

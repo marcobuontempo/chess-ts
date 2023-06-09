@@ -3,7 +3,7 @@ import ChessBoard from "./board";
 export default class Engine {
   chessboard: ChessBoard;
 
-  constructor(fen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+  constructor(fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     this.chessboard = new ChessBoard(fen);
   }
 
@@ -80,7 +80,7 @@ export default class Engine {
       promotion: (move & 0b0000_0000_0000_1111_0000_0000_0000_0000) >> 16,
       from: (move & 0b0000_0000_0000_0000_1111_1111_0000_0000) >> 8,
       to: (move & 0b0000_0000_0000_0000_0000_0000_1111_1111),
-    }
+    };
   }
 
   /**
@@ -109,7 +109,7 @@ export default class Engine {
       for (let j = 0; j < Engine.MOVES_LIST[pieceFrom].length; j++) { // iterate through the piece's possible move directions
         const offset = Engine.MOVES_LIST[pieceFrom][j];  // the direction to move
         to = from + offset; // the new square index to move to
-        
+
         while (true) { // infinite loop until a break is hit. i.e. edge of board, capture, or piece isn't 'slider'
           squareTo = this.chessboard.board[to];
           const pieceTo = squareTo & ChessBoard.SQ.pc;
@@ -170,30 +170,37 @@ export default class Engine {
         }
       }
 
-      // CASTLING - TODO: FIX LOGIC
-      if ((pieceFrom === ChessBoard.SQ.K) && (squareFrom !== ChessBoard.SQ.m)) { // check king hasn't moved
-        if (colourFrom === ChessBoard.SQ.w) { // white
-          const squareRookKing = this.chessboard.board[98]; // kingside Rook
-          const squareRookQueen = this.chessboard.board[91];  // queenside Rook
-          // Check if rook is on starting square and hasn't moved
-          if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m) === 0) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.E));
+      // CASTLING
+      if ((pieceFrom === ChessBoard.SQ.K) && (squareFrom !== ChessBoard.SQ.m)) { // ensure king hasn't moved
+        const squareRookKing = this.chessboard.board[from + (3 * Engine.DIRECTIONS.E)]; // kingside rook square
+        const squareRookQueen = this.chessboard.board[from + (4 * Engine.DIRECTIONS.W)];  // queenside rook square
+
+        // Kingside - Check if rook is on starting square and hasn't moved
+        if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m) === 0) {
+          let kingCanCastle = true;
+          // Ensure squares are empty between king and rook
+          for (let k = 1; k <= 2; k++) {
+            if (this.chessboard.board[from + (k * Engine.DIRECTIONS.E)] !== ChessBoard.SQ.EMPTY) {
+              kingCanCastle = false;
+              break;
+            }
+          }
+          if (kingCanCastle === true) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + (2 * Engine.DIRECTIONS.E));
             pmIdx++;
           }
-          if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m) === 0) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.W));
-            pmIdx++;
+        }
+        // Queenside
+        if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m) === 0) {
+          let kingCanCastle = true;
+          for (let k = 1; k <= 3; k++) {
+            if (this.chessboard.board[from + (k * Engine.DIRECTIONS.W)] !== ChessBoard.SQ.EMPTY) {
+              kingCanCastle = false;
+              break;
+            }
           }
-        } else {  // black  
-          const squareRookKing = this.chessboard.board[28]; // kingside Rook
-          const squareRookQueen = this.chessboard.board[21];  // queenside Rook
-          // Check if rook is on starting square and hasn't moved
-          if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m) === 0) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.E));
-            pmIdx++;
-          }
-          if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m) === 0) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + 2 * (Engine.DIRECTIONS.W));
+          if (kingCanCastle === true) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
             pmIdx++;
           }
         }

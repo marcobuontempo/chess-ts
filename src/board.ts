@@ -1,13 +1,13 @@
 export default class ChessBoard {
-  board: Int8Array = new Int8Array(120);            // 10x12 board - represented as a 1D array
-  castle: Int8Array = new Int8Array(4);             // castle rights available [wK, wQ, bK, bQ]
-  enpassant: Number = 0;                            // 10x12 index for the enpassant target square
-  halfmove: Number = 0;                             // halfmove clock for 50 move rule
-  fullmove: Number = 0;                             // fullmove clock
-  turn: Number = 0;                                 // current turn: 0 white, 1 black
+  board = new Int8Array(120);            // 10x12 board - represented as a 1D array
+  castle = new Int8Array(4);             // castle rights available [wK, wQ, bK, bQ]
+  enpassant = 0;                            // 10x12 index for the enpassant target square
+  halfmove = 0;                             // halfmove clock for 50 move rule
+  fullmove = 0;                             // fullmove clock
+  turn = 0;                                 // current turn: 0 white, 1 black
 
 
-  constructor(fen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+  constructor(fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     this.initBoardState(fen);
   }
 
@@ -248,6 +248,15 @@ export default class ChessBoard {
   static encodeSquare(pieceType: string, pieceColour: string, pieceHasMoved: boolean, kingCanCastle: boolean) {
     // TODO - NOT CORRECT
     // return (kingCanCastle << 6) | (pieceHasMoved << 5) | (pieceColour << 4) | ChessBoard.SQ[pieceType.toUpperCase() as keyof typeof ChessBoard.SQ]
+  }
+
+
+  /**
+   * DECODE SQUARE
+   * TODO
+   */
+  static decodeSquare(square: number) {
+    return;
   }
 
   /**

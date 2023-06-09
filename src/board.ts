@@ -163,7 +163,7 @@ export default class ChessBoard {
       enpassant: -1,
       halfmove: 0,
       fullmove: 0
-    }
+    };
 
     // Split each segment of FEN
     const [fenBoard, fenTurn, fenCastle, fenEnPassant, fenHalfMove, fenFullMove] = fen.split(" ");
@@ -216,7 +216,7 @@ export default class ChessBoard {
       (fenCh === "r" && j === 7 && output.castle[2] === 1) ||
       (fenCh === "r" && j === 0 && output.castle[3] === 1)) {
         flags = flags & ~ChessBoard.SQ.m;
-    }
+      }
 
       // Set flags for pawns on starting rank
       if ((piece === ChessBoard.SQ.P) && 
@@ -286,18 +286,18 @@ export default class ChessBoard {
       const piece = this.board[i] & 0b0001_0111;  // get *only* the piece and colour value for lookup
 
       switch (pieceSymbol) {
-        case "decimal":
-          square = String(this.board[i]);
-          break;
-        case "character":
-          square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
-          break;
-        case "unicode":
-          square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
-          break;
-        default:
-          square = "ERR";
-          break;
+      case "decimal":
+        square = String(this.board[i]);
+        break;
+      case "character":
+        square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
+        break;
+      case "unicode":
+        square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
+        break;
+      default:
+        square = "ERR";
+        break;
       }
 
       square = square.padStart(3);

@@ -139,7 +139,7 @@ export default class Engine {
       if (pieceFrom === ChessBoard.SQ.P) {
         // double push
         if ((squareFrom & ChessBoard.SQ.m) === 0) {  // piece hasn't moved
-          offset = Engine.MOVES_LIST[pieceFrom][1]
+          offset = Engine.MOVES_LIST[pieceFrom][1];
           to = from + offset;
           squareTo = this.chessboard.board[to];
           const firstSquare = this.chessboard.board[from + Engine.MOVES_LIST[pieceFrom][0]];  // first square in double push
@@ -210,6 +210,12 @@ export default class Engine {
     return pseudoMoves;
   }
 
+  /**
+   * TODO: EVALUATE/SCORE POSITION
+   * include king is in check logic here ? (maybe, simply check if score -100000, where king is taken, for example)
+   * else, use 2 bitboards to store each king's position. then do a search NESW on king. if Q found any, bishop diagonal, rook straight, pawn diagonal, or knight 'L', then king is in check and is invalid
+   */
+
 
   /**
    * TODO: MAKE MOVE ()
@@ -217,6 +223,10 @@ export default class Engine {
 
   /**
    * TODO: UNMAKE MOVE ()
+   */
+
+  /**
+   * TODO: PERFT FUNCTION +++ UNIT TESTS
    */
 }
 
@@ -226,4 +236,4 @@ const moves = test.generatePseudoMoves();
 moves.forEach(move => {
   if (move === 0) return;
   console.log(Engine.decodeMoveData(move));
-})
+});

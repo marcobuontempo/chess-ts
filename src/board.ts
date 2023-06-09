@@ -12,10 +12,9 @@ export default class ChessBoard {
   }
 
   initBoardState(fen: string) {
-    const { board, turn, castle, enpassant, halfmove, fullmove } = ChessBoard.parseFEN(fen);
+    const { board, turn, enpassant, halfmove, fullmove } = ChessBoard.parseFEN(fen);
     this.board = board;
     this.turn = turn;
-    this.castle = castle;
     this.enpassant = enpassant;
     this.halfmove = halfmove;
     this.fullmove = fullmove;
@@ -34,19 +33,23 @@ export default class ChessBoard {
    * bit 8: unused
    */
   static SQ = {
-    P: 0b0000_0001,    //| pawn:               1   
-    N: 0b0000_0010,    //| knight:             2
-    B: 0b0000_0011,    //| bishop:             3
-    R: 0b0000_0100,    //| rook:               4
-    Q: 0b0000_0101,    //| queen:              5
-    K: 0b0000_0110,    //| king:               6
-    w: 0b0000_0000,    //| white:              0
-    b: 0b0001_0000,    //| black:              16
-    c: 0b0010_0000,    //| can castle (king):  32
-    m: 0b0100_0000,    //| piece has moved:    64
+    P:     0b0000_0001,    //| pawn:                            1   
+    N:     0b0000_0010,    //| knight:                          2
+    B:     0b0000_0011,    //| bishop:                          3
+    R:     0b0000_0100,    //| rook:                            4
+    Q:     0b0000_0101,    //| queen:                           5
+    K:     0b0000_0110,    //| king:                            6
+    w:     0b0000_0000,    //| white (not req.):                0
+    b:     0b0001_0000,    //| black:                           16
+    c:     0b0010_0000,    //| can castle (king):               32
+    m:     0b0100_0000,    //| piece has moved:                 64
+    // additional data:
+    pc:    0b0000_0111,    //| mask to check if it has piece:   7
+    EMPTY: 0b0000_0000,    //| empty square indicator:          0
+    EDGE:  -1,             //| edge of board:                  -1
   };
 
-  /** REVERSE SQ LOOKUP */
+  /** REVERSE SQ LOOKUP (PIECES ONLY) */
   static SQ_R = {
     0b0000_0001: "P",
     0b0000_0010: "N",
@@ -151,13 +154,13 @@ export default class ChessBoard {
   /**
    * converts FEN string into data values
    */
-  static parseFEN(fen: string) {
+  private static parseFEN(fen: string) {
     // Object to store output data
     const output = {
       board: new Int8Array(120),
-      turn: 0,
+      turn: ChessBoard.SQ.w,
       castle: new Int8Array(4),
-      enpassant: 0,
+      enpassant: -1,
       halfmove: 0,
       fullmove: 0
     }
@@ -199,24 +202,19 @@ export default class ChessBoard {
       // Get square information
       const piece = ChessBoard.SQ[fenCh.toUpperCase() as keyof typeof ChessBoard.SQ];
       const colour = fenCh === fenCh.toUpperCase() ? ChessBoard.SQ.w : ChessBoard.SQ.b;
-      let flags = 0;
+      let flags = ChessBoard.SQ.m;  // set every piece to moved, unless later specified
 
       // Set flags for king castling (set 'can castle' if either king-side or queen-side available)
       if ((fenCh === "K" && (output.castle[0] === 1 || output.castle[1] === 1)) ||
         (fenCh === "k" && (output.castle[2] === 1 || output.castle[3] === 1))) {
-        flags = flags | ChessBoard.SQ.c;
-      }
-      if ((fenCh === "K" && output.castle[0] === 0 && output.castle[1] === 0) ||
-        (fenCh === "k" && output.castle[2] === 0 && output.castle[3] === 0)) {
-        flags = flags | ChessBoard.SQ.m;
+        flags = flags | ChessBoard.SQ.c & ~ChessBoard.SQ.m;
       }
 
-      // Set flags for rook (set to 'piece moved' if castle is unavailable)
-      if ((fenCh === "R" && j === 63 && output.castle[0] === 0) ||
-        (fenCh === "R" && j === 56 && output.castle[1] === 0) ||
-        (fenCh === "r" && j === 7 && output.castle[2] === 0) ||
-        (fenCh === "r" && j === 0 && output.castle[3] === 0)) {
-        flags = flags | ChessBoard.SQ.m;
+      // Set flags for pawns on starting rank
+      if ((piece === ChessBoard.SQ.P) && 
+          ((colour === ChessBoard.SQ.w && j >= 48 && j <= 55) || 
+          ((colour === ChessBoard.SQ.b && j >= 8 && j <= 15)))) {
+        flags = flags & ~ChessBoard.SQ.m;
       }
 
       // Encode square
@@ -237,9 +235,17 @@ export default class ChessBoard {
   }
 
   /**
-  * PADS A []64 BOARD WITH -1'S TO MAKE []120
+   * ENCODE SQUARE
+   */
+  static encodeSquare(pieceType: string, pieceColour: string, pieceHasMoved: boolean, kingCanCastle: boolean) {
+    // TODO - NOT CORRECT
+    // return (kingCanCastle << 6) | (pieceHasMoved << 5) | (pieceColour << 4) | ChessBoard.SQ[pieceType.toUpperCase() as keyof typeof ChessBoard.SQ]
+  }
+
+  /**
+  * PADS A [64]Int8 BOARD WITH -1'S TO MAKE [120]Int8
   */
-  static padBoard(inpBoard: Int8Array) {
+  private static padBoard(inpBoard: Int8Array) {
     const outBoard = new Int8Array([...ChessBoard.mailbox120]);
     ChessBoard.mailbox64.forEach((mi, i) => {
       outBoard[mi] = inpBoard[i];

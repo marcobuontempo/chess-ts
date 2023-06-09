@@ -202,7 +202,7 @@ export default class ChessBoard {
       // Get square information
       const piece = ChessBoard.SQ[fenCh.toUpperCase() as keyof typeof ChessBoard.SQ];
       const colour = fenCh === fenCh.toUpperCase() ? ChessBoard.SQ.w : ChessBoard.SQ.b;
-      let flags = ChessBoard.SQ.m;  // set every piece to moved, unless later specified
+      let flags = colour | ChessBoard.SQ.m;  // set colour + every piece to moved, unless later specified
 
       // Set flags for king castling (set 'can castle' if either king-side or queen-side available)
       if ((fenCh === "K" && (output.castle[0] === 1 || output.castle[1] === 1)) ||
@@ -226,7 +226,7 @@ export default class ChessBoard {
       }
 
       // Encode square
-      board64[j] = piece | colour | flags;
+      board64[j] = piece | flags;
     }
 
     // Pad 64 board into 120

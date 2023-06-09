@@ -102,9 +102,7 @@ export default class Engine {
       if (squareFrom === ChessBoard.SQ.EMPTY) continue;  // skip if no piece on square
       if (colourFrom !== this.chessboard.turn) continue; // skip if piece is not for current turn
 
-
       if ((pieceFrom === ChessBoard.SQ.P) && (colourFrom === ChessBoard.SQ.b)) pieceFrom -= 1; // use 0 as piece value for black pawn (e.g. to access MOVES_LIST[0] instead of MOVES_LIST[1])
-
 
       for (let j = 0; j < Engine.MOVES_LIST[pieceFrom].length; j++) { // iterate through the piece's possible move directions
         const offset = Engine.MOVES_LIST[pieceFrom][j];  // the direction to move
@@ -200,7 +198,7 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(2, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
             pmIdx++;
           }
         }
@@ -230,7 +228,7 @@ export default class Engine {
    */
 }
 
-const test = new Engine("8/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+const test = new Engine("4k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
 test.chessboard.printBoard("unicode");
 const moves = test.generatePseudoMoves();
 moves.forEach(move => {

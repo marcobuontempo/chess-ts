@@ -305,6 +305,7 @@ export default class ChessBoard {
     }
 
     process.stdout.write(" | |\n+-----------------------------+\n");
+    // TODO: Add board data (en passant sq, turn, halfmove, fullmove)
     process.stdout.write(" +---------------------------+\n");
   }
 }

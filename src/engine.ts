@@ -209,10 +209,88 @@ export default class Engine {
   }
 
   /**
+   * VALIDATES WHETHER KING IS IN CHECK
+   * checks against the specified colour and finds the king
+   * then, searches each direction in reverse (i.e. from the king's origin), until a piece is found
+   * if the piece is an attack (e.g. opposite bishop on diagonal, opposite rook on rank/file), then king is in check
+   */
+  kingIsInCheck(colour: number) {
+    for (let i = 0; i < 64; i++) {
+      const from = ChessBoard.mailbox64[i];
+      const squareFrom = this.chessboard.board[from];
+      const pieceFrom = squareFrom & ChessBoard.SQ.pc;
+      const colourFrom = squareFrom & ChessBoard.SQ.b;
+
+      if ((squareFrom === ChessBoard.SQ.EMPTY) || !((pieceFrom === ChessBoard.SQ.K) && (colourFrom === colour))) continue; // If empty, or not King in specified colour, skip square
+
+      let offset;
+      let to;
+      let squareTo;
+      let pieceTo;
+      let colourTo;
+      let kingInCheck = false;
+
+      const moves = Engine.MOVES_LIST[pieceFrom]; // store all king move directions
+      for (let j = 0; j < moves.length; j++) {
+        if (kingInCheck === true) return kingInCheck;  // don't continue searching if king is already found to be in check
+        offset = moves[j];
+        to = from + offset;
+        while (true) {
+          squareTo = this.chessboard.board[to];
+          pieceTo = squareTo & ChessBoard.SQ.pc;
+          colourTo = squareTo & ChessBoard.SQ.b;
+          if (squareTo == ChessBoard.SQ.EMPTY) {  // skip square if empty
+            to += offset;
+            continue;
+          }
+          if ((colourTo === colour) || (squareTo === ChessBoard.SQ.EDGE)) break; // if same colour piece or edge of board, not under attack in the specified direction
+          // if Rook or Queen, on same rank or file
+          if (((pieceTo === ChessBoard.SQ.R) || (pieceTo === ChessBoard.SQ.Q)) && ((offset === Engine.DIRECTIONS.N) || (offset === Engine.DIRECTIONS.S) || (offset === Engine.DIRECTIONS.E) || (offset === Engine.DIRECTIONS.W))) {
+            kingInCheck = true;
+          }
+          // if Bishop or Queen, on same diagonal
+          if (((pieceTo === ChessBoard.SQ.B) || (pieceTo === ChessBoard.SQ.Q)) && ((offset === Engine.DIRECTIONS.NE) || (offset === Engine.DIRECTIONS.SE) || (offset === Engine.DIRECTIONS.NW) || (offset === Engine.DIRECTIONS.SW))) {
+            kingInCheck = true;
+          }
+          to += offset; // check next square
+        }
+      }
+
+      const pawn = colour === ChessBoard.SQ.b ? 0 : 1;
+      const pawnMoves = Engine.MOVES_LIST[pawn];
+      // East - pawn capture
+      offset = pawnMoves[2];
+      to = from + offset;
+      squareTo = this.chessboard.board[to];
+      colourTo = squareTo & ChessBoard.SQ.b;
+      pieceTo = squareTo & ChessBoard.SQ.pc;
+      if ((colourTo !== colour) && (pieceTo === ChessBoard.SQ.P)) {
+        kingInCheck = true;
+        return kingInCheck;
+      }
+      // West - pawn capture
+      offset = pawnMoves[3];
+      to = from + offset;
+      squareTo = this.chessboard.board[to];
+      colourTo = squareTo & ChessBoard.SQ.b;
+      pieceTo = squareTo & ChessBoard.SQ.pc;
+      if ((colourTo !== colour) && (pieceTo === ChessBoard.SQ.P)) {
+        kingInCheck = true;
+        return kingInCheck;
+      }
+
+      return kingInCheck;
+    }
+  }
+
+  /**
    * TODO: EVALUATE/SCORE POSITION
    * include king is in check logic here ? (maybe, simply check if score -100000, where king is taken, for example)
    * else, use 2 bitboards to store each king's position. then do a search NESW on king. if Q found any, bishop diagonal, rook straight, pawn diagonal, or knight 'L', then king is in check and is invalid
    */
+  evaluatePosition() {
+    return;
+  }
 
 
   /**
@@ -228,10 +306,13 @@ export default class Engine {
    */
 }
 
-const test = new Engine("4k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+const test = new Engine("r3k2r/3rbP2/8/8/7r/8/5p2/R3K2R w KQkq - 0 1");
 test.chessboard.printBoard("unicode");
-const moves = test.generatePseudoMoves();
-moves.forEach(move => {
-  if (move === 0) return;
-  console.log(Engine.decodeMoveData(move));
-});
+
+// const moves = test.generatePseudoMoves();
+// moves.forEach(move => {
+//   if (move === 0) return;
+//   console.log(Engine.decodeMoveData(move));
+// });
+
+console.log(test.kingIsInCheck(ChessBoard.SQ.b));

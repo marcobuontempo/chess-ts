@@ -1,6 +1,6 @@
 import ChessBoard from "../src/board";
 
-describe("unmoved piece value tests", () => {
+describe("Unmoved Piece Values", () => {
   describe("white pieces", () => {
     test("white pawn should equal 1", () => {
       expect(ChessBoard.SQ.w | ChessBoard.SQ.P).toStrictEqual(1);
@@ -50,7 +50,7 @@ describe("unmoved piece value tests", () => {
   });
 });
 
-describe("moved piece value tests", () => {
+describe("Moved Piece Values", () => {
   describe("white pieces", () => {
     test("white pawn should equal 65", () => {
       expect(ChessBoard.SQ.w | ChessBoard.SQ.P | ChessBoard.SQ.m).toStrictEqual(65);
@@ -94,3 +94,26 @@ describe("moved piece value tests", () => {
   });
 });
 
+describe("Initialise ChessBoard", () => {
+  test("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", () => {
+    const chessboard = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    expect(chessboard.castle).toStrictEqual(new Int8Array([1,1,1,1]));
+    expect(chessboard.turn).toStrictEqual(ChessBoard.SQ.w);
+    expect(chessboard.enpassant).toStrictEqual(-1);
+    expect(chessboard.halfmove).toStrictEqual(0);
+    expect(chessboard.fullmove).toStrictEqual(1);
+    expect(chessboard.board).toStrictEqual(new Int8Array(
+      [ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,20,82,83,85,118,83,82,20,-1,
+        -1,17,17,17,17,17,17,17,17,-1,
+        -1,0,0,0,0,0,0,0,0,-1,
+        -1,0,0,0,0,0,0,0,0,-1,
+        -1,0,0,0,0,0,0,0,0,-1,
+        -1,0,0,0,0,0,0,0,0,-1,
+        -1,1,1,1,1,1,1,1,1,-1,
+        -1,4,66,67,69,102,67,66,4,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1]));
+  });
+});

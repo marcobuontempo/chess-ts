@@ -306,8 +306,9 @@ export default class Engine {
    */
 }
 
-const test = new Engine("r3k2r/3rbP2/8/8/7r/8/5p2/R3K2R w KQkq - 0 1");
+const test = new Engine();
 test.chessboard.printBoard("unicode");
+console.log(test.chessboard.board.toString());
 
 // const moves = test.generatePseudoMoves();
 // moves.forEach(move => {
@@ -315,4 +316,3 @@ test.chessboard.printBoard("unicode");
 //   console.log(Engine.decodeMoveData(move));
 // });
 
-console.log(test.kingIsInCheck(ChessBoard.SQ.b));

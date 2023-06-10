@@ -11,7 +11,7 @@ export default class ChessBoard {
     this.initBoardState(fen);
   }
 
-  initBoardState(fen: string) {
+  private initBoardState(fen: string) {
     const { board, turn, castle, enpassant, halfmove, fullmove } = ChessBoard.parseFEN(fen);
     this.board = board;
     this.turn = turn;

@@ -12,9 +12,10 @@ export default class ChessBoard {
   }
 
   initBoardState(fen: string) {
-    const { board, turn, enpassant, halfmove, fullmove } = ChessBoard.parseFEN(fen);
+    const { board, turn, castle, enpassant, halfmove, fullmove } = ChessBoard.parseFEN(fen);
     this.board = board;
     this.turn = turn;
+    this.castle = castle;
     this.enpassant = enpassant;
     this.halfmove = halfmove;
     this.fullmove = fullmove;
@@ -305,7 +306,11 @@ export default class ChessBoard {
     }
 
     process.stdout.write(" | |\n+-----------------------------+\n");
-    // TODO: Add board data (en passant sq, turn, halfmove, fullmove)
-    process.stdout.write(" +---------------------------+\n");
+    process.stdout.write(`Turn: ${ChessBoard.SQ_R[this.turn as keyof typeof ChessBoard.SQ_R]}\n`);
+    process.stdout.write(`Castle: ${this.castle}\n`);
+    process.stdout.write(`En Passant Square: ${this.enpassant}\n`);
+    process.stdout.write(`Halfmove: ${this.halfmove}\n`);
+    process.stdout.write(`Fullmove: ${this.fullmove}\n`);
+    process.stdout.write("+-----------------------------+\n");
   }
 }

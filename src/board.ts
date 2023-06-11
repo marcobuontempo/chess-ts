@@ -34,20 +34,20 @@ export default class ChessBoard {
    * bit 8: unused
    */
   static SQ = {
-    P:     0b0000_0001,    //| pawn:                            1   
-    N:     0b0000_0010,    //| knight:                          2
-    B:     0b0000_0011,    //| bishop:                          3
-    R:     0b0000_0100,    //| rook:                            4
-    Q:     0b0000_0101,    //| queen:                           5
-    K:     0b0000_0110,    //| king:                            6
-    w:     0b0000_0000,    //| white (not req.):                0
-    b:     0b0001_0000,    //| black:                           16
-    c:     0b0010_0000,    //| can castle (king):               32
-    m:     0b0100_0000,    //| piece has moved:                 64
+    P: 0b0000_0001,    //| pawn:                            1   
+    N: 0b0000_0010,    //| knight:                          2
+    B: 0b0000_0011,    //| bishop:                          3
+    R: 0b0000_0100,    //| rook:                            4
+    Q: 0b0000_0101,    //| queen:                           5
+    K: 0b0000_0110,    //| king:                            6
+    w: 0b0000_0000,    //| white (not req.):                0
+    b: 0b0001_0000,    //| black:                           16
+    c: 0b0010_0000,    //| can castle (king):               32
+    m: 0b0100_0000,    //| piece has moved:                 64
     // additional data:
-    pc:    0b0000_0111,    //| mask to check if it has piece:   7
+    pc: 0b0000_0111,    //| mask to check if it has piece:   7
     EMPTY: 0b0000_0000,    //| empty square indicator:          0
-    EDGE:  -1,             //| edge of board:                  -1
+    EDGE: -1,             //| edge of board:                  -1
   };
 
   /** REVERSE SQ LOOKUP (PIECES ONLY) */
@@ -140,14 +140,14 @@ export default class ChessBoard {
   static mailbox120 = new Int8Array([
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+    -1, 0, 1, 2, 3, 4, 5, 6, 7, -1,
+    -1, 8, 9, 10, 11, 12, 13, 14, 15, -1,
+    -1, 16, 17, 18, 19, 20, 21, 22, 23, -1,
+    -1, 24, 25, 26, 27, 28, 29, 30, 31, -1,
+    -1, 32, 33, 34, 35, 36, 37, 38, 39, -1,
+    -1, 40, 41, 42, 43, 44, 45, 46, 47, -1,
+    -1, 48, 49, 50, 51, 52, 53, 54, 55, -1,
+    -1, 56, 57, 58, 59, 60, 61, 62, 63, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   ]);
@@ -214,15 +214,15 @@ export default class ChessBoard {
 
       // Set flags for rook (set to 'piece unmoved' if castle is available)
       if ((fenCh === "R" && j === 63 && output.castle[0] === 1) ||
-      (fenCh === "R" && j === 56 && output.castle[1] === 1) ||
-      (fenCh === "r" && j === 7 && output.castle[2] === 1) ||
-      (fenCh === "r" && j === 0 && output.castle[3] === 1)) {
+        (fenCh === "R" && j === 56 && output.castle[1] === 1) ||
+        (fenCh === "r" && j === 7 && output.castle[2] === 1) ||
+        (fenCh === "r" && j === 0 && output.castle[3] === 1)) {
         flags &= ~ChessBoard.SQ.m;
       }
 
       // Set flags for pawns on starting rank (set to unmoved)
-      if ((piece === ChessBoard.SQ.P) && 
-          ((colour === ChessBoard.SQ.w && j >= 48 && j <= 55) || 
+      if ((piece === ChessBoard.SQ.P) &&
+        ((colour === ChessBoard.SQ.w && j >= 48 && j <= 55) ||
           ((colour === ChessBoard.SQ.b && j >= 8 && j <= 15)))) {
         flags &= ~ChessBoard.SQ.m;
       }
@@ -241,7 +241,43 @@ export default class ChessBoard {
    * converts current internal board state array into a FEN string
    */
   getFEN() {
-    return
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    let board = "";
+    let enpassant = "-";
+    const turn = this.turn === ChessBoard.SQ.w ? "w" : "b";
+    const castle = ["K", "Q", "k", "q"].filter((v, i) => this.castle[i] === 1).join("") || "-";
+    const halfmove = this.halfmove;
+    const fullmove = this.fullmove;
+    
+    // enpassant value to algebraic notation
+    if(this.enpassant !== -1) {
+      const ep = ChessBoard.mailbox120[this.enpassant];
+      const file = String.fromCharCode((ep % 8) + 97);
+      const rank = String(8 - Math.floor(ep / 8));
+      enpassant = file + rank;
+    }
+
+    // stringify board state
+    for (let i = 0; i < 64; i++) {
+      if (i % 8 === 0 && i !== 0) board += "/";
+      const mb = ChessBoard.mailbox64[i];
+      let square = this.board[mb];
+      const piece = square & (ChessBoard.SQ.pc | ChessBoard.SQ.b);
+      if (square === ChessBoard.SQ.EMPTY) {
+        let skip = 0;
+        while (square === ChessBoard.SQ.EMPTY) {
+          skip++;
+          i++;
+          square = this.board[mb + skip];
+        }
+        board += String(skip);
+        i--;
+      } else {
+        board += ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH];
+      }
+    }
+
+    return `${board} ${turn} ${castle} ${enpassant} ${halfmove} ${fullmove}`;
   }
 
   /**
@@ -288,18 +324,18 @@ export default class ChessBoard {
       const piece = this.board[i] & 0b0001_0111;  // get *only* the piece and colour value for lookup
 
       switch (pieceSymbol) {
-      case "decimal":
-        square = String(this.board[i]);
-        break;
-      case "character":
-        square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
-        break;
-      case "unicode":
-        square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
-        break;
-      default:
-        square = "ERR";
-        break;
+        case "decimal":
+          square = String(this.board[i]);
+          break;
+        case "character":
+          square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
+          break;
+        case "unicode":
+          square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
+          break;
+        default:
+          square = "ERR";
+          break;
       }
 
       square = square.padStart(3);

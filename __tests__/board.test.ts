@@ -257,7 +257,7 @@ describe("Initialise ChessBoard", () => {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
   });
-  test("7K/8/8/8/P7/8/8/k7 b a4 - 0 65", () => {
+  test("7K/8/8/8/P7/8/8/k7 b - a4 0 65", () => {
     const chessboard = new ChessBoard("7K/8/8/8/P7/8/8/k7 b - a4 0 65");
     expect(chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 0]));
     expect(chessboard.turn).toStrictEqual(16);
@@ -294,8 +294,30 @@ describe("Get FEN", () => {
     const chessboard = new ChessBoard("8/8/4k3/8/8/3K4/8/8 w - - 32 120");
     expect(chessboard.getFEN()).toStrictEqual("8/8/4k3/8/8/3K4/8/8 w - - 32 120");
   });
-  test("7K/8/8/8/P7/8/8/k7 b a4 - 0 65", () => {
-    const chessboard = new ChessBoard("7K/8/8/8/P7/8/8/k7 b a4 - 0 65");
-    expect(chessboard.getFEN()).toStrictEqual("7K/8/8/8/P7/8/8/k7 b a4 - 0 65");
+  test("7K/8/8/8/P7/8/8/k7 b - a4 0 65", () => {
+    const chessboard = new ChessBoard("7K/8/8/8/P7/8/8/k7 b - a4 0 65");
+    expect(chessboard.getFEN()).toStrictEqual("7K/8/8/8/P7/8/8/k7 b - a4 0 65");
+  });
+  test("8/8/8/8/8/8/8/8 w - - 5 10", () => {
+    const chessboard = new ChessBoard();
+    chessboard.board = new Int8Array([
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
+    chessboard.turn = 0;
+    chessboard.castle = new Int8Array([0,0,0,0]);
+    chessboard.enpassant = -1;
+    chessboard.halfmove = 5;
+    chessboard.fullmove = 10;
+    expect(chessboard.getFEN()).toStrictEqual("8/8/8/8/8/8/8/8 w - - 5 10");
   });
 });

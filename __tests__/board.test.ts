@@ -321,3 +321,19 @@ describe("Get FEN", () => {
     expect(chessboard.getFEN()).toStrictEqual("8/8/8/8/8/8/8/8 w - - 5 10");
   });
 });
+
+
+describe("Encode Square", () => {
+  test("white pawn unmoved", () => {
+    expect(ChessBoard.encodeSquare("P", false, false)).toStrictEqual(1);
+  });
+  test("black rook moved", () => {
+    expect(ChessBoard.encodeSquare("r", true, false)).toStrictEqual(52);
+  });
+  test("white king moved", () => {
+    expect(ChessBoard.encodeSquare("P", false, false)).toStrictEqual(38);
+  });
+  test("black king unmoved (can castle)", () => {
+    expect(ChessBoard.encodeSquare("P", false, false)).toStrictEqual(86);
+  });
+});

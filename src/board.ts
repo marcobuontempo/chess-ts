@@ -283,7 +283,7 @@ export default class ChessBoard {
   /**
    * ENCODE SQUARE
    */
-  static encodeSquare(pieceType: string, pieceColour: string, pieceHasMoved: boolean, kingCanCastle: boolean) {
+  static encodeSquare(pieceCh: string, pieceHasMoved: boolean, kingCanCastle: boolean) {
     // TODO - NOT CORRECT
     // return (kingCanCastle << 6) | (pieceHasMoved << 5) | (pieceColour << 4) | ChessBoard.SQ[pieceType.toUpperCase() as keyof typeof ChessBoard.SQ]
   }

@@ -306,8 +306,9 @@ export default class Engine {
    */
 }
 
-const test = new Engine("7K/8/8/8/P7/8/8/k7 b - a4 0 65");
+const test = new Engine();
 test.chessboard.printBoard("unicode");
+console.log(ChessBoard.decodeSquare(84));
 
 
 // const moves = test.generatePseudoMoves();

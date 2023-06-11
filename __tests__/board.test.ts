@@ -337,3 +337,36 @@ describe("Encode Square", () => {
     expect(ChessBoard.encodeSquare("k", false, true)).toStrictEqual(54);
   });
 });
+
+
+describe("Decode Square", () => {
+  test("white pawn unmoved", () => {
+    const square = ChessBoard.encodeSquare("P",false,false);
+    expect(ChessBoard.decodeSquare(square)).toStrictEqual({
+      piece: "P",
+      hasMoved: false,
+      canCastle: false,
+    });
+  });
+  test("black rook moved", () => {
+    const square = ChessBoard.encodeSquare("r",true,false);
+    expect(ChessBoard.decodeSquare(square)).toStrictEqual({
+      piece: "r",
+      hasMoved: true,
+      canCastle: false,
+    });  });
+  test("white king moved", () => {
+    const square = ChessBoard.encodeSquare("K",true,false);
+    expect(ChessBoard.decodeSquare(square)).toStrictEqual({
+      piece: "K",
+      hasMoved: true,
+      canCastle: false,
+    });  });
+  test("black king unmoved (can castle)", () => {
+    const square = ChessBoard.encodeSquare("k",false,true);
+    expect(ChessBoard.decodeSquare(square)).toStrictEqual({
+      piece: "k",
+      hasMoved: false,
+      canCastle: true,
+    });  });
+});

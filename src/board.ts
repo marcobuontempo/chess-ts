@@ -295,8 +295,14 @@ export default class ChessBoard {
    * DECODE SQUARE
    * TODO
    */
-  static decodeSquare(square: number) {
-    return;
+  static decodeSquare(encodedSquare: number) {
+    const pieceCh = (encodedSquare & ChessBoard.SQ.pc) | (encodedSquare & ChessBoard.SQ.b);
+    const piece = ChessBoard.PIECE_CH[pieceCh as keyof typeof ChessBoard.PIECE_CH];
+    return {
+      piece: piece === "." ? "EMPTY" : piece,
+      hasMoved: (encodedSquare & ChessBoard.SQ.m) > 0,
+      canCastle: (encodedSquare & ChessBoard.SQ.c) > 0,
+    };
   }
 
   /**

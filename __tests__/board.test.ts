@@ -328,12 +328,12 @@ describe("Encode Square", () => {
     expect(ChessBoard.encodeSquare("P", false, false)).toStrictEqual(1);
   });
   test("black rook moved", () => {
-    expect(ChessBoard.encodeSquare("r", true, false)).toStrictEqual(52);
+    expect(ChessBoard.encodeSquare("r", true, false)).toStrictEqual(84);
   });
   test("white king moved", () => {
-    expect(ChessBoard.encodeSquare("P", false, false)).toStrictEqual(38);
+    expect(ChessBoard.encodeSquare("K", true, false)).toStrictEqual(70);
   });
   test("black king unmoved (can castle)", () => {
-    expect(ChessBoard.encodeSquare("P", false, false)).toStrictEqual(86);
+    expect(ChessBoard.encodeSquare("k", false, true)).toStrictEqual(54);
   });
 });

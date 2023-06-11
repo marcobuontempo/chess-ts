@@ -203,13 +203,14 @@ export default class ChessBoard {
       // Get square information
       const piece = ChessBoard.SQ[fenCh.toUpperCase() as keyof typeof ChessBoard.SQ];
       const colour = fenCh === fenCh.toUpperCase() ? ChessBoard.SQ.w : ChessBoard.SQ.b;
-      let flags = colour | ChessBoard.SQ.m;  // set colour + every piece to moved, unless later specified
+      let hasMoved = true;  // set each piece to 'has moved' by default, unless otherwise specified
+      let canCastle = false;
 
       // Set flags for king castling (set 'can castle' if either king-side or queen-side available)
       if ((fenCh === "K" && (output.castle[0] === 1 || output.castle[1] === 1)) ||
         (fenCh === "k" && (output.castle[2] === 1 || output.castle[3] === 1))) {
-        flags |= ChessBoard.SQ.c;
-        flags &= ~ChessBoard.SQ.m;
+        hasMoved = false;
+        canCastle = true;
       }
 
       // Set flags for rook (set to 'piece unmoved' if castle is available)
@@ -217,18 +218,18 @@ export default class ChessBoard {
         (fenCh === "R" && j === 56 && output.castle[1] === 1) ||
         (fenCh === "r" && j === 7 && output.castle[2] === 1) ||
         (fenCh === "r" && j === 0 && output.castle[3] === 1)) {
-        flags &= ~ChessBoard.SQ.m;
+        hasMoved = false;
       }
 
       // Set flags for pawns on starting rank (set to unmoved)
       if ((piece === ChessBoard.SQ.P) &&
         ((colour === ChessBoard.SQ.w && j >= 48 && j <= 55) ||
           ((colour === ChessBoard.SQ.b && j >= 8 && j <= 15)))) {
-        flags &= ~ChessBoard.SQ.m;
+        hasMoved = false;
       }
 
       // Encode square
-      board64[j] = piece | flags;
+      board64[j] = ChessBoard.encodeSquare(fenCh,hasMoved,canCastle);
     }
 
     // Pad 64 board into 120
@@ -284,8 +285,9 @@ export default class ChessBoard {
    * ENCODE SQUARE
    */
   static encodeSquare(pieceCh: string, pieceHasMoved: boolean, kingCanCastle: boolean) {
-    // TODO - NOT CORRECT
-    // return (kingCanCastle << 6) | (pieceHasMoved << 5) | (pieceColour << 4) | ChessBoard.SQ[pieceType.toUpperCase() as keyof typeof ChessBoard.SQ]
+    const piece = ChessBoard.SQ[pieceCh.toUpperCase() as keyof typeof ChessBoard.SQ];
+    const colour = pieceCh === pieceCh.toUpperCase() ? ChessBoard.SQ.w : ChessBoard.SQ.b; 
+    return piece | colour | (Number(pieceHasMoved) << 6) | (Number(kingCanCastle) << 5);
   }
 
 

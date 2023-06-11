@@ -293,7 +293,6 @@ export default class ChessBoard {
 
   /**
    * DECODE SQUARE
-   * TODO
    */
   static decodeSquare(encodedSquare: number) {
     const pieceCh = (encodedSquare & ChessBoard.SQ.pc) | (encodedSquare & ChessBoard.SQ.b);

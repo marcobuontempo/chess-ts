@@ -1,16 +1,5 @@
 import ChessBoard from "../src/board";
 
-describe("Mailbox Arrays", () => {
-  test("mailbox64 length", () => {
-    expect(ChessBoard.mailbox64.length).toStrictEqual(64);
-  });
-  test("mailbox120 length", () => {
-    expect(ChessBoard.mailbox120.length).toStrictEqual(120);
-  });
-  test("mailbox120 '-1' count", () => {
-    expect(ChessBoard.mailbox120.filter(i => i === -1).length).toStrictEqual(56);
-  });
-});
 
 describe("Unmoved Piece Values", () => {
   describe("white pieces", () => {
@@ -62,6 +51,7 @@ describe("Unmoved Piece Values", () => {
   });
 });
 
+
 describe("Moved Piece Values", () => {
   describe("white pieces", () => {
     test("white pawn should equal 65", () => {
@@ -106,7 +96,104 @@ describe("Moved Piece Values", () => {
   });
 });
 
+
+describe("Mailbox Arrays", () => {
+  test("mailbox64 length", () => {
+    expect(ChessBoard.mailbox64.length).toStrictEqual(64);
+  });
+  test("mailbox120 length", () => {
+    expect(ChessBoard.mailbox120.length).toStrictEqual(120);
+  });
+  test("mailbox120 '-1' count", () => {
+    expect(ChessBoard.mailbox120.filter(i => i === -1).length).toStrictEqual(56);
+  });
+});
+
+
+describe("Parse FEN", () => {
+  test("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", () => {
+    const chessboard = new ChessBoard();
+    const chessboardProto = Object.getPrototypeOf(chessboard);
+    expect(chessboardProto.constructor.parseFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")).toStrictEqual(
+      {
+        board: new Int8Array(
+          [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, 20, 82, 83, 85, 54, 83, 82, 20, -1,
+            -1, 17, 17, 17, 17, 17, 17, 17, 17, -1,
+            -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+            -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+            -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+            -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+            -1, 1, 1, 1, 1, 1, 1, 1, 1, -1,
+            -1, 4, 66, 67, 69, 38, 67, 66, 4, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]),
+        castle: new Int8Array([1, 1, 1, 1]),
+        enpassant: -1,
+        fullmove: 1,
+        halfmove: 0,
+        turn: 0
+      }
+    );
+  });
+});
+
+
+describe("Pad Board with -1's", () => {
+  test("8x8 blank array", () => {
+    const board = new Int8Array([
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0
+    ]);
+    const chessboard = new ChessBoard();
+    const chessboardProto = Object.getPrototypeOf(chessboard);
+    expect(chessboardProto.constructor.padBoard(board)).toStrictEqual(new Int8Array(
+      [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
+  });
+});
+
+
+
 describe("Initialise ChessBoard", () => {
+  test("No FEN provided in constructor", () => {
+    const chessboard = new ChessBoard();
+    expect(chessboard.castle).toStrictEqual(new Int8Array([1, 1, 1, 1]));
+    expect(chessboard.turn).toStrictEqual(0);
+    expect(chessboard.enpassant).toStrictEqual(-1);
+    expect(chessboard.halfmove).toStrictEqual(0);
+    expect(chessboard.fullmove).toStrictEqual(1);
+    expect(chessboard.board).toStrictEqual(new Int8Array(
+      [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, 20, 82, 83, 85, 54, 83, 82, 20, -1,
+        -1, 17, 17, 17, 17, 17, 17, 17, 17, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 1, 1, 1, 1, 1, 1, 1, 1, -1,
+        -1, 4, 66, 67, 69, 38, 67, 66, 4, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
+  });
   test("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", () => {
     const chessboard = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     expect(chessboard.castle).toStrictEqual(new Int8Array([1, 1, 1, 1]));
@@ -128,7 +215,6 @@ describe("Initialise ChessBoard", () => {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
   });
-
   test("r3k3/p5pp/8/2p1p3/4P3/2N5/3P1PPP/R1BQK2R b q c6 0 38", () => {
     const chessboard = new ChessBoard("r3k3/p5pp/8/2p1p3/4P3/2N5/3P1PPP/R1BQK2R b q c6 0 38");
     expect(chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 1]));
@@ -150,7 +236,6 @@ describe("Initialise ChessBoard", () => {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
   });
-
   test("8/8/4k3/8/8/3K4/8/8 w - - 32 120", () => {
     const chessboard = new ChessBoard("8/8/4k3/8/8/3K4/8/8 w - - 32 120");
     expect(chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 0]));
@@ -172,7 +257,6 @@ describe("Initialise ChessBoard", () => {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
   });
-
   test("7K/8/8/8/P7/8/8/k7 b a4 - 0 65", () => {
     const chessboard = new ChessBoard("7K/8/8/8/P7/8/8/k7 b - a4 0 65");
     expect(chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 0]));
@@ -193,5 +277,25 @@ describe("Initialise ChessBoard", () => {
         -1, 86, 0, 0, 0, 0, 0, 0, 0, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
+  });
+});
+
+
+describe("Get FEN", () => {
+  test("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", () => {
+    const chessboard = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    expect(chessboard.getFEN()).toStrictEqual("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  });
+  test("r3k3/p5pp/8/2p1p3/4P3/2N5/3P1PPP/R1BQK2R b q c6 0 38", () => {
+    const chessboard = new ChessBoard("r3k3/p5pp/8/2p1p3/4P3/2N5/3P1PPP/R1BQK2R b q c6 0 38");
+    expect(chessboard.getFEN()).toStrictEqual("r3k3/p5pp/8/2p1p3/4P3/2N5/3P1PPP/R1BQK2R b q c6 0 38");
+  });
+  test("8/8/4k3/8/8/3K4/8/8 w - - 32 120", () => {
+    const chessboard = new ChessBoard("8/8/4k3/8/8/3K4/8/8 w - - 32 120");
+    expect(chessboard.getFEN()).toStrictEqual("8/8/4k3/8/8/3K4/8/8 w - - 32 120");
+  });
+  test("7K/8/8/8/P7/8/8/k7 b a4 - 0 65", () => {
+    const chessboard = new ChessBoard("7K/8/8/8/P7/8/8/k7 b a4 - 0 65");
+    expect(chessboard.getFEN()).toStrictEqual("7K/8/8/8/P7/8/8/k7 b a4 - 0 65");
   });
 });

@@ -238,10 +238,10 @@ export default class ChessBoard {
   }
 
   /**
-   * converts 10x12 board state array into a FEN string
+   * converts current internal board state array into a FEN string
    */
-  static stringifyFEN(board10x12: Int8Array) {
-    // TODO
+  getFEN() {
+    return
   }
 
   /**

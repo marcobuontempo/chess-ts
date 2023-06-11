@@ -239,10 +239,10 @@ export default class ChessBoard {
   }
 
   /**
-   * converts current internal board state array into a FEN string
+   * GETS CURRENT FEN
+   * converts current internal board state into a FEN string
    */
   getFEN() {
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     let board = "";
     let enpassant = "-";
     const turn = this.turn === ChessBoard.SQ.w ? "w" : "b";
@@ -252,9 +252,9 @@ export default class ChessBoard {
     
     // enpassant value to algebraic notation
     if(this.enpassant !== -1) {
-      const ep = ChessBoard.mailbox120[this.enpassant];
-      const file = String.fromCharCode((ep % 8) + 97);
-      const rank = String(8 - Math.floor(ep / 8));
+      const mb = ChessBoard.mailbox120[this.enpassant]; // get the 8x8 array index, as it is easier to calculate rank/file with
+      const file = String.fromCharCode((mb % 8) + 97);
+      const rank = String(8 - Math.floor(mb / 8));
       enpassant = file + rank;
     }
 
@@ -264,6 +264,7 @@ export default class ChessBoard {
       const mb = ChessBoard.mailbox64[i];
       let square = this.board[mb];
       const piece = square & (ChessBoard.SQ.pc | ChessBoard.SQ.b);
+      // if empty square, count how many additional empty squares exist and add to FEN string
       if (square === ChessBoard.SQ.EMPTY) {
         let skip = 0;
         while (square === ChessBoard.SQ.EMPTY) {
@@ -272,12 +273,13 @@ export default class ChessBoard {
           square = this.board[mb + skip];
         }
         board += String(skip);
-        i--;
+        i--;  // reduce by 1 to reverse the last 'i++' in the while loop above (to ensure no squares are skipped)
       } else {
-        board += ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH];
+        board += ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH];  // add piece character to FEN string
       }
     }
 
+    // combine all components of FEN string
     return `${board} ${turn} ${castle} ${enpassant} ${halfmove} ${fullmove}`;
   }
 
@@ -331,18 +333,18 @@ export default class ChessBoard {
       const piece = this.board[i] & 0b0001_0111;  // get *only* the piece and colour value for lookup
 
       switch (pieceSymbol) {
-        case "decimal":
-          square = String(this.board[i]);
-          break;
-        case "character":
-          square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
-          break;
-        case "unicode":
-          square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
-          break;
-        default:
-          square = "ERR";
-          break;
+      case "decimal":
+        square = String(this.board[i]);
+        break;
+      case "character":
+        square = ` ${ChessBoard.PIECE_CH[piece as keyof typeof ChessBoard.PIECE_CH]} `;
+        break;
+      case "unicode":
+        square = ` ${ChessBoard.PIECE_UTF[piece as keyof typeof ChessBoard.PIECE_UTF]} `;
+        break;
+      default:
+        square = "ERR";
+        break;
       }
 
       square = square.padStart(3);

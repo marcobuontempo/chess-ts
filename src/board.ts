@@ -1,6 +1,6 @@
 export default class ChessBoard {
-  board = new Int8Array(120);            // 10x12 board - represented as a 1D array
-  castle = new Int8Array(4);             // castle rights available [wK, wQ, bK, bQ]
+  board = new Int8Array(120);               // 10x12 board - represented as a 1D array
+  castle = new Int8Array(4);                // castle rights available [wK, wQ, bK, bQ]
   enpassant = 0;                            // 10x12 index for the enpassant target square
   halfmove = 0;                             // halfmove clock for 50 move rule
   fullmove = 0;                             // fullmove clock
@@ -208,7 +208,8 @@ export default class ChessBoard {
       // Set flags for king castling (set 'can castle' if either king-side or queen-side available)
       if ((fenCh === "K" && (output.castle[0] === 1 || output.castle[1] === 1)) ||
         (fenCh === "k" && (output.castle[2] === 1 || output.castle[3] === 1))) {
-        flags = flags | ChessBoard.SQ.c & ~ChessBoard.SQ.m;
+        flags |= ChessBoard.SQ.c;
+        flags &= ~ChessBoard.SQ.m;
       }
 
       // Set flags for rook (set to 'piece unmoved' if castle is available)
@@ -216,14 +217,14 @@ export default class ChessBoard {
       (fenCh === "R" && j === 56 && output.castle[1] === 1) ||
       (fenCh === "r" && j === 7 && output.castle[2] === 1) ||
       (fenCh === "r" && j === 0 && output.castle[3] === 1)) {
-        flags = flags & ~ChessBoard.SQ.m;
+        flags &= ~ChessBoard.SQ.m;
       }
 
-      // Set flags for pawns on starting rank
+      // Set flags for pawns on starting rank (set to unmoved)
       if ((piece === ChessBoard.SQ.P) && 
           ((colour === ChessBoard.SQ.w && j >= 48 && j <= 55) || 
           ((colour === ChessBoard.SQ.b && j >= 8 && j <= 15)))) {
-        flags = flags & ~ChessBoard.SQ.m;
+        flags &= ~ChessBoard.SQ.m;
       }
 
       // Encode square

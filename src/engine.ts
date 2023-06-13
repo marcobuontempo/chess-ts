@@ -7,6 +7,28 @@ export default class Engine {
     this.chessboard = new ChessBoard(fen);
   }
 
+  /* MOVES VALUES
+  * binary representation of move information
+  *
+  * bit 1-8:    [TO]      square from (index of 120[] board)
+  * bit 9-16:   [FROM]    square to (index of 120[] board)
+  * bit 17-19:  [PROMOTE] piece value of what to promote to (in case of pawn promotion. i.e. ChessBoard.SQ.N, B, R or Q)
+  * bit 20-22:  [CAPTURE] piece value of what was captured (i.e. ChessBoard.SQ.P, N, B, R, Q)
+  * bit 23-24:  [CASTLE]  whether the move was castle (1 = KingSide, 2 = QueenSide)
+  * bit 25-32:  [UNUSUED] currently unused
+  */
+  static MV = {
+    SQ_TO:      0b0000_0000_0000_0000_0000_0000_1111_1111,
+    SQ_FROM:    0b0000_0000_0000_0000_1111_1111_0000_0000,
+    PC_PROMOTE: 0b0000_0000_0000_0111_0000_0000_0000_0000,
+    PC_CAPTURE: 0b0000_0000_0011_1000_0000_0000_0000_0000,
+    CASTLE:     0b0000_0000_1100_0000_0000_0000_0000_0000,
+    KS_CASTLE:  0b0000_0000_0100_0000_0000_0000_0000_0000,
+    QS_CASTLE:  0b0000_0000_1000_0000_0000_0000_0000_0000,
+    NONE:       0b0000_0000_0000_0000_0000_0000_0000_0000,
+    UNUSED:     0b1111_1111_0000_0000_0000_0000_0000_0000,
+  };
+
   /**
   * MOVE DIRECTIONS
   * index matches piece encoding
@@ -55,19 +77,9 @@ export default class Engine {
 
   /**
    * ENCODES THE MOVE INFORMATION ENCODED INTO A 32UInt
-   * 
-   *   | U  | K  | C  |  P |    F    |    T   |
-   * 0b 0000_0000_0000_0000_0000_0000_0000_0000
-   * 
-   * (U)NUSED: spare bits
-   * (K)ING CASTLE: the king has castled (1 - Kingside, 2 - Queenside)
-   * (C)APTURE: the piece capture value (i.e. ChessBoard.SQ.P, ChessBoard.SQ.N, etc.)
-   * (P)ROMOTION: the piece to promote to (ChessBoard.SQ.N, B, R or Q)
-   * (T)O: 10x12 index of square to move to
-   * (F)ROM: 10x12 index of square to move from
    */
   static encodeMoveData(castle: number, capture: number, promotion: number, from: number, to: number) {
-    return (castle << 24) | (capture << 20) | (promotion << 16) | (from << 8) | (to);
+    return (castle << 22) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
   }
 
   /**
@@ -75,11 +87,11 @@ export default class Engine {
    */
   static decodeMoveData(move: number) {
     return {
-      castle: (move & 0b0000_1111_0000_0000_0000_0000_0000_0000) >> 24,
-      capture: (move & 0b0000_0000_1111_0000_0000_0000_0000_0000) >> 20,
-      promotion: (move & 0b0000_0000_0000_1111_0000_0000_0000_0000) >> 16,
-      from: (move & 0b0000_0000_0000_0000_1111_1111_0000_0000) >> 8,
-      to: (move & 0b0000_0000_0000_0000_0000_0000_1111_1111),
+      castle: (move & Engine.MV.CASTLE) >> 22,
+      capture: (move & Engine.MV.PC_CAPTURE) >> 19,
+      promotion: (move & Engine.MV.PC_PROMOTE) >> 16,
+      from: (move & Engine.MV.SQ_FROM) >> 8,
+      to: (move & Engine.MV.SQ_TO),
     };
   }
 
@@ -184,7 +196,7 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, from, from + (2 * Engine.DIRECTIONS.E));
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(Engine.MV.KS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.E));
             pmIdx++;
           }
         }
@@ -198,7 +210,7 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(2, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(Engine.MV.QS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
             pmIdx++;
           }
         }
@@ -308,12 +320,6 @@ export default class Engine {
 
 const test = new Engine();
 test.chessboard.printBoard("unicode");
-
-//            | U  | K  | C  |  P |    F    |    T   |
-console.log(Number(95).toString(2),Number(98).toString(2));
-
-console.log(0b0000_0000_0100_0000_0101_1111_0110_0010);
-console.log(0b0000_0001_0000_0000_0101_1111_0110_0010);
 
 // const moves = test.generatePseudoMoves();
 // moves.forEach(move => {

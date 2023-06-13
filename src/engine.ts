@@ -18,15 +18,15 @@ export default class Engine {
   * bit 25-32:  [UNUSUED] currently unused
   */
   static MV = {
-    SQ_TO:      0b0000_0000_0000_0000_0000_0000_1111_1111,
-    SQ_FROM:    0b0000_0000_0000_0000_1111_1111_0000_0000,
+    SQ_TO: 0b0000_0000_0000_0000_0000_0000_1111_1111,
+    SQ_FROM: 0b0000_0000_0000_0000_1111_1111_0000_0000,
     PC_PROMOTE: 0b0000_0000_0000_0111_0000_0000_0000_0000,
     PC_CAPTURE: 0b0000_0000_0011_1000_0000_0000_0000_0000,
-    CASTLE:     0b0000_0000_1100_0000_0000_0000_0000_0000,
-    KS_CASTLE:  0b0000_0000_0100_0000_0000_0000_0000_0000,
-    QS_CASTLE:  0b0000_0000_1000_0000_0000_0000_0000_0000,
-    NONE:       0b0000_0000_0000_0000_0000_0000_0000_0000,
-    UNUSED:     0b1111_1111_0000_0000_0000_0000_0000_0000,
+    CASTLE: 0b0000_0000_1100_0000_0000_0000_0000_0000,
+    KS_CASTLE: 0b0000_0000_0100_0000_0000_0000_0000_0000,
+    QS_CASTLE: 0b0000_0000_1000_0000_0000_0000_0000_0000,
+    NONE: 0b0000_0000_0000_0000_0000_0000_0000_0000,
+    UNUSED: 0b1111_1111_0000_0000_0000_0000_0000_0000,
   };
 
   /**
@@ -227,6 +227,8 @@ export default class Engine {
    * if the piece is an attack (e.g. opposite bishop on diagonal, opposite rook on rank/file), then king is in check
    */
   kingIsInCheck(colour: number) {
+    let kingInCheck = false;
+
     for (let i = 0; i < 64; i++) {
       const from = ChessBoard.mailbox64[i];
       const squareFrom = this.chessboard.board[from];
@@ -234,15 +236,13 @@ export default class Engine {
       const colourFrom = squareFrom & ChessBoard.SQ.b;
 
       if ((squareFrom === ChessBoard.SQ.EMPTY) || !((pieceFrom === ChessBoard.SQ.K) && (colourFrom === colour))) continue; // If empty, or not King in specified colour, skip square
-
       let offset;
       let to;
       let squareTo;
       let pieceTo;
       let colourTo;
-      let kingInCheck = false;
 
-      const moves = Engine.MOVES_LIST[pieceFrom]; // store all king move directions
+      let moves = Engine.MOVES_LIST[pieceFrom]; // store all king move directions
       for (let j = 0; j < moves.length; j++) {
         if (kingInCheck === true) return kingInCheck;  // don't continue searching if king is already found to be in check
         offset = moves[j];
@@ -291,6 +291,20 @@ export default class Engine {
         return kingInCheck;
       }
 
+      //KNIGHT moves
+      moves = Engine.MOVES_LIST[ChessBoard.SQ.N];
+      for (let j = 0; j < moves.length; j++) {
+        offset = moves[j];
+        to = from + offset;
+        squareTo = this.chessboard.board[to];
+        colourTo = squareTo & ChessBoard.SQ.b;
+        pieceTo = squareTo & ChessBoard.SQ.pc;
+        if ((colourTo !== colour) && (pieceTo === ChessBoard.SQ.N)) {
+          kingInCheck = true;
+          return kingInCheck;
+        }
+      }
+
       return kingInCheck;
     }
   }
@@ -318,8 +332,9 @@ export default class Engine {
    */
 }
 
-const test = new Engine();
+const test = new Engine("k7/8/8/8/8/6n1/8/7K w KQkq - 0 1");
 test.chessboard.printBoard("unicode");
+console.log(test.kingIsInCheck(ChessBoard.SQ.w));
 
 // const moves = test.generatePseudoMoves();
 // moves.forEach(move => {

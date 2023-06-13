@@ -1,6 +1,7 @@
 import ChessBoard from "../src/board";
 import Engine from "../src/engine";
 
+
 describe("Encode Move Data", () => {
   test("1. Castle[No], Capture[No], Promotion[No], From[21], To[22]", () => {
     expect(Engine.encodeMoveData(0,0,0,21,22)).toStrictEqual(0b0000_0000_0000_0000_0001_0101_0001_0110);
@@ -19,8 +20,8 @@ describe("Encode Move Data", () => {
   });
 });
 
-// decode move data
-describe("Encode Move Data", () => {
+
+describe("Decode Move Data", () => {
   test("1. Castle[No], Capture[No], Promotion[No], From[21], To[22]", () => {
     expect(Engine.decodeMoveData(0b0000_0000_0000_0000_0001_0101_0001_0110)).toStrictEqual({
       castle: 0,
@@ -69,7 +70,101 @@ describe("Encode Move Data", () => {
 });
 
 
-// king is in check
+describe("King Is In Check", () => {
+  describe("White King", () => {
+    test("1. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", () => {
+      const chessboard = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(false);
+    });
+    test("2. k7/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(false);
+    });
+    test("3. k6b/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("k6b/8/8/8/8/8/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(false);
+    });
+    test("4. nk6/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("nk6/8/8/8/8/8/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(false);
+    });
+    test("5. bk6/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("bk6/8/8/8/8/8/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(true);
+    });
+    test("6. k6r/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("k6r/8/8/8/8/8/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(true);
+    });
+    test("7. k6q/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("k6q/8/8/8/8/8/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(true);
+    });
+    test("8. k7/8/8/8/8/6n1/8/7K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/6n1/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(true);
+    });
+    test("9. b6k/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("b6k/8/8/8/8/8/8/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(true);
+    });
+    test("10. k7/8/8/8/8/8/7p/7K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/7p/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(false);
+    });
+    test("11. k7/8/8/8/8/8/6p1/7K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/6p1/7K w - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.w)).toStrictEqual(true);
+    });
+  });
+
+  describe("White King", () => {
+    test("1. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", () => {
+      const chessboard = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(false);
+    });
+    test("2. k7/8/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/8/7K b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(false);
+    });
+    test("3. k7/8/8/8/8/8/8/B6K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/8/B6K b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(false);
+    });
+    test("4. k7/8/8/8/8/8/8/6KN", () => {
+      const chessboard = new Engine("nk6/8/8/8/8/8/8/6KN b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(false);
+    });
+    test("5. k7/8/8/8/8/8/8/6KB", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/8/6KB b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(true);
+    });
+    test("6. k7/8/8/8/8/8/8/R6K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/8/R6K b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(true);
+    });
+    test("7. k7/8/8/8/8/8/8/Q6K", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/8/Q6K b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(true);
+    });
+    test("8. k7/8/1N6/8/8/8/8/7K", () => {
+      const chessboard = new Engine("k7/8/1N6/8/8/8/8/7K b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(true);
+    });
+    test("9. k7/8/8/8/8/8/8/K6B", () => {
+      const chessboard = new Engine("k7/8/8/8/8/8/8/K6B b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(true);
+    });
+    test("10. k7/P7/8/8/8/8/8/7K", () => {
+      const chessboard = new Engine("k7/P7/8/8/8/8/8/7K b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(false);
+    });
+    test("11. k7/8/8/8/8/8/6p1/7K", () => {
+      const chessboard = new Engine("k7/1P6/8/8/8/8/8/7K b - - 0 1");
+      expect(chessboard.kingIsInCheck(ChessBoard.SQ.b)).toStrictEqual(true);
+    });
+  });
+});
 
 // evaluate position
 

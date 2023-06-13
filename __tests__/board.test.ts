@@ -171,7 +171,6 @@ describe("Pad Board with -1's", () => {
 });
 
 
-
 describe("Initialise ChessBoard", () => {
   test("1. No FEN provided in constructor", () => {
     const chessboard = new ChessBoard();

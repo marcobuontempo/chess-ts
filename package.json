@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "tsc",
-    "start": "npx ts-node src/board.ts",
+    "start": "npx ts-node src/engine.ts",
     "test": "jest",
     "lint": "eslint . --ext .ts"
   },

@@ -310,12 +310,46 @@ export default class Engine {
   }
 
   /**
-   * TODO: EVALUATE/SCORE POSITION
-   * include king is in check logic here ? (maybe, simply check if score -100000, where king is taken, for example)
-   * else, use 2 bitboards to store each king's position. then do a search NESW on king. if Q found any, bishop diagonal, rook straight, pawn diagonal, or knight 'L', then king is in check and is invalid
+   * EVALUATE/SCORE POSITION
+   * returns a score *relative* to the current turn (i.e. if white is winning, but it's black's turn, a -ve will be returned)
    */
+  SCORES = {
+    [ChessBoard.SQ.P]: 1,
+    [ChessBoard.SQ.N]: 2.8,
+    [ChessBoard.SQ.B]: 3,
+    [ChessBoard.SQ.R]: 5,
+    [ChessBoard.SQ.Q]: 8.5,
+    [ChessBoard.SQ.K]: 99999,
+  };
   evaluatePosition() {
-    return;
+    const wOffset = 1;
+    const bOffset = -1;
+    const toMove = this.chessboard.turn === ChessBoard.SQ.w ? wOffset : bOffset;
+
+    const materialScores = {
+      [ChessBoard.SQ.P]: 0,
+      [ChessBoard.SQ.N]: 0,
+      [ChessBoard.SQ.B]: 0,
+      [ChessBoard.SQ.R]: 0,
+      [ChessBoard.SQ.Q]: 0,
+      [ChessBoard.SQ.K]: 0,
+    };
+    for (let i = 0; i < 64; i++) {
+      const from = ChessBoard.mailbox64[i];
+      const square = this.chessboard.board[from];
+      const piece = square & ChessBoard.SQ.pc;
+      const colour = square & ChessBoard.SQ.b;
+      if (piece === ChessBoard.SQ.EMPTY) continue;
+      const colourOffset = colour === ChessBoard.SQ.w ? wOffset : bOffset;
+      materialScores[piece] += (this.SCORES[piece] * colourOffset);
+    }
+
+    let materialScore = 0;
+    Object.values(materialScores).forEach(v => materialScore += v);
+    console.log(materialScores);
+    console.log(materialScore);
+
+    return materialScore * toMove;
   }
 
 
@@ -332,9 +366,9 @@ export default class Engine {
    */
 }
 
-const test = new Engine("k7/8/8/8/8/6n1/8/7K w KQkq - 0 1");
+const test = new Engine("2r5/8/8/4k3/2Q5/2KP4/8/8 b - - 0 1");
 test.chessboard.printBoard("unicode");
-console.log(test.kingIsInCheck(ChessBoard.SQ.w));
+console.log(test.evaluatePosition());
 
 // const moves = test.generatePseudoMoves();
 // moves.forEach(move => {

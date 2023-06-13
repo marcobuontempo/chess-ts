@@ -167,7 +167,18 @@ export default class ChessBoard {
     };
 
     // Split each segment of FEN
-    const [fenBoard, fenTurn, fenCastle, fenEnPassant, fenHalfMove, fenFullMove] = fen.split(" ");
+    const fenSplit = fen.split(" ");
+    const fenBoard = fenSplit[0];
+    let [, fenTurn, fenCastle, fenEnPassant, fenHalfMove, fenFullMove] = fenSplit;
+
+    // Set default values if ONLY board position was provided
+    if(fenSplit.length === 1) {
+      fenHalfMove = String(0);
+      fenFullMove = String(1);
+      fenEnPassant = "-";
+      fenCastle = "-";
+      fenTurn = "w";
+    }
 
     // Convert halfmove and fullmove to Integers
     output.halfmove = parseInt(fenHalfMove);

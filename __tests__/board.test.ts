@@ -277,6 +277,27 @@ describe("Initialise ChessBoard", () => {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
   });
+  test("6. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR [Board String ONLY]", () => {
+    const chessboard = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    expect(chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 0]));
+    expect(chessboard.turn).toStrictEqual(0);
+    expect(chessboard.enpassant).toStrictEqual(-1);
+    expect(chessboard.halfmove).toStrictEqual(0);
+    expect(chessboard.fullmove).toStrictEqual(1);
+    expect(chessboard.board).toStrictEqual(new Int8Array(
+      [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, 84, 82, 83, 85, 86, 83, 82, 84, -1,
+        -1, 17, 17, 17, 17, 17, 17, 17, 17, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 0, 0, 0, 0, 0, 0, 0, 0, -1,
+        -1, 1, 1, 1, 1, 1, 1, 1, 1, -1,
+        -1, 68, 66, 67, 69, 70, 67, 66, 68, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]));
+  });
 });
 
 

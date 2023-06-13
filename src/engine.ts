@@ -346,8 +346,6 @@ export default class Engine {
 
     let materialScore = 0;
     Object.values(materialScores).forEach(v => materialScore += v);
-    console.log(materialScores);
-    console.log(materialScore);
 
     return materialScore * toMove;
   }
@@ -366,13 +364,7 @@ export default class Engine {
    */
 }
 
-const test = new Engine("2r5/8/8/4k3/2Q5/2KP4/8/8 b - - 0 1");
+const test = new Engine("2r5/8/8/4k3/2Q5/2KP4/8/8");
 test.chessboard.printBoard("unicode");
 console.log(test.evaluatePosition());
-
-// const moves = test.generatePseudoMoves();
-// moves.forEach(move => {
-//   if (move === 0) return;
-//   console.log(Engine.decodeMoveData(move));
-// });
 

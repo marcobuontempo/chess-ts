@@ -56,7 +56,7 @@ export default class Engine {
   /**
    * ENCODES THE MOVE INFORMATION ENCODED INTO A 32UInt
    * 
-   *   | U  | K  | C  |  P |    T    |    F   |
+   *   | U  | K  | C  |  P |    F    |    T   |
    * 0b 0000_0000_0000_0000_0000_0000_0000_0000
    * 
    * (U)NUSED: spare bits
@@ -308,8 +308,12 @@ export default class Engine {
 
 const test = new Engine();
 test.chessboard.printBoard("unicode");
-console.log(ChessBoard.decodeSquare(84));
 
+//            | U  | K  | C  |  P |    F    |    T   |
+console.log(Number(95).toString(2),Number(98).toString(2));
+
+console.log(0b0000_0000_0100_0000_0101_1111_0110_0010);
+console.log(0b0000_0001_0000_0000_0101_1111_0110_0010);
 
 // const moves = test.generatePseudoMoves();
 // moves.forEach(move => {

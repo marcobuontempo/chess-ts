@@ -2,9 +2,11 @@ import ChessBoard from "./board";
 
 export default class Engine {
   chessboard: ChessBoard;
+  moveStack: Array<Array<number | Int8Array>>;
 
   constructor(fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     this.chessboard = new ChessBoard(fen);
+    this.moveStack = [];
   }
 
   /* MOVES VALUES
@@ -12,21 +14,21 @@ export default class Engine {
   *
   * bit 1-8:    [TO]      square from (index of 120[] board)
   * bit 9-16:   [FROM]    square to (index of 120[] board)
-  * bit 17-19:  [PROMOTE] piece value of what to promote to (in case of pawn promotion. i.e. ChessBoard.SQ.N, B, R or Q)
-  * bit 20-22:  [CAPTURE] piece value of what was captured (i.e. ChessBoard.SQ.P, N, B, R, Q)
-  * bit 23-24:  [CASTLE]  whether the move was castle (1 = KingSide, 2 = QueenSide)
-  * bit 25-32:  [UNUSUED] currently unused
+  * bit 17-19:  [PROMOTE] 3-bit piece value of what to promote to (in case of pawn promotion. i.e. ChessBoard.SQ.N, B, R or Q)
+  * bit 20-27:  [CAPTURE] complete 8-bit piece value of what was captured (i.e. ChessBoard.SQ.P, N, B, R, Q, including flags)
+  * bit 28-29:  [CASTLE]  whether the move was castle (1 = KingSide, 2 = QueenSide)
+  * bit 30-32:  [UNUSUED] currently unused
   */
   static MV = {
     SQ_TO: 0b0000_0000_0000_0000_0000_0000_1111_1111,
     SQ_FROM: 0b0000_0000_0000_0000_1111_1111_0000_0000,
     PC_PROMOTE: 0b0000_0000_0000_0111_0000_0000_0000_0000,
-    PC_CAPTURE: 0b0000_0000_0011_1000_0000_0000_0000_0000,
-    CASTLE: 0b0000_0000_1100_0000_0000_0000_0000_0000,
-    KS_CASTLE: 0b0000_0000_0100_0000_0000_0000_0000_0000,
-    QS_CASTLE: 0b0000_0000_1000_0000_0000_0000_0000_0000,
+    PC_CAPTURE: 0b0000_0111_1111_1000_0000_0000_0000_0000,
+    CASTLE: 0b001_1000_0000_0000_0000_0000_0000_0000,
+    KS_CASTLE: 0b0000_1000_0000_0000_0000_0000_0000_0000,
+    QS_CASTLE: 0b0001_0000_0000_0000_0000_0000_0000_0000,
     NONE: 0b0000_0000_0000_0000_0000_0000_0000_0000,
-    UNUSED: 0b1111_1111_0000_0000_0000_0000_0000_0000,
+    UNUSED: 0b1110_0000_0000_0000_0000_0000_0000_0000,
   };
 
   /**
@@ -79,7 +81,7 @@ export default class Engine {
    * ENCODES THE MOVE INFORMATION ENCODED INTO A 32UInt
    */
   static encodeMoveData(castle: number, capture: number, promotion: number, from: number, to: number) {
-    return (castle << 22) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
+    return (castle << 27) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
   }
 
   /**
@@ -87,7 +89,7 @@ export default class Engine {
    */
   static decodeMoveData(move: number) {
     return {
-      castle: (move & Engine.MV.CASTLE) >> 22,
+      castle: (move & Engine.MV.CASTLE) >> 27,
       capture: (move & Engine.MV.PC_CAPTURE) >> 19,
       promotion: (move & Engine.MV.PC_PROMOTE) >> 16,
       from: (move & Engine.MV.SQ_FROM) >> 8,
@@ -341,11 +343,13 @@ export default class Engine {
       const colour = square & ChessBoard.SQ.b;
       if (piece === ChessBoard.SQ.EMPTY) continue;
       const colourOffset = colour === ChessBoard.SQ.w ? wOffset : bOffset;
-      materialScores[piece] += (this.SCORES[piece] * colourOffset);
+      materialScores[piece] += colourOffset;
     }
 
     let materialScore = 0;
-    Object.values(materialScores).forEach(v => materialScore += v);
+    for (const piece in materialScores) {
+      materialScore += (materialScores[piece] * this.SCORES[piece]);
+    }
 
     return materialScore * toMove;
   }
@@ -354,17 +358,54 @@ export default class Engine {
   /**
    * TODO: MAKE MOVE ()
    */
+  makeMove(move: number) {
+    // Store information that isn't encoded in the current move
+    const boardState = [
+      this.chessboard.castle,
+      this.chessboard.enpassant,
+      this.chessboard.halfmove,
+      this.chessboard.fullmove,
+      this.chessboard.turn
+    ];
+
+    const { castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+
+    const squareFrom = this.chessboard.board[from];
+
+    // MOVE PIECE
+    if (promotion === 0) {
+      // move piece to new square
+      this.chessboard.board[to] = squareFrom | ChessBoard.SQ.m;
+    } else {
+      // else, update piece if promoted
+      this.chessboard.board[to] = (squareFrom & ~ChessBoard.SQ.pc) | promotion | ChessBoard.SQ.m;
+    }
+
+    // UPDATE CASTLE RIGHTS
+
+
+    // STORE PREVIOUS BOARD STATE IN STACK
+    this.moveStack.push(boardState);
+  }
 
   /**
    * TODO: UNMAKE MOVE ()
    */
+  unmakeMove(move: number) {
+    const { castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+
+    this.chessboard.board[from] = this.chessboard.board[to];
+    this.chessboard.board[to] = this.chessboard.board[from];
+
+
+  }
 
   /**
    * TODO: PERFT FUNCTION +++ UNIT TESTS
    */
 }
 
-const test = new Engine("2r5/8/8/4k3/2Q5/2KP4/8/8");
+const test = new Engine();
 test.chessboard.printBoard("unicode");
 console.log(test.evaluatePosition());
-
+console.log(Engine.encodeMoveData(2, 0, 0, 25, 21).toString(2));

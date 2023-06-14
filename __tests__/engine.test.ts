@@ -6,17 +6,17 @@ describe("Encode Move Data", () => {
   test("1. Castle[No], Capture[No], Promotion[No], From[21], To[22]", () => {
     expect(Engine.encodeMoveData(0, 0, 0, 21, 22)).toStrictEqual(0b0000_0000_0000_0000_0001_0101_0001_0110);
   });
-  test("2. Castle[No], Capture[Rook], Promotion[No], From[98], To[28]", () => {
-    expect(Engine.encodeMoveData(0, ChessBoard.SQ.R, 0, 98, 28)).toStrictEqual(0b0000_0000_0010_0000_0110_0010_0001_1100);
+  test("2. Castle[No], Capture[Black Rook Unmoved], Promotion[No], From[98], To[28]", () => {
+    expect(Engine.encodeMoveData(0, ChessBoard.SQ.R | ChessBoard.SQ.b, 0, 98, 28)).toStrictEqual(0b0000_0000_1010_0000_0110_0010_0001_1100);
   });
   test("3. Castle[QueenSide], Capture[No], Promotion[No], From[25], To[21]", () => {
-    expect(Engine.encodeMoveData(2, 0, 0, 25, 21)).toStrictEqual(0b0000_0000_1000_0000_0001_1001_0001_0101);
+    expect(Engine.encodeMoveData(2, 0, 0, 25, 21)).toStrictEqual(0b0001_0000_0000_0000_0001_1001_0001_0101);
   });
-  test("4. Castle[No], Capture[Knight], Promotion[Queen], From[87], To[96]", () => {
-    expect(Engine.encodeMoveData(0, ChessBoard.SQ.N, ChessBoard.SQ.Q, 87, 96)).toStrictEqual(0b0000_0000_0001_0101_0101_0111_0110_0000);
+  test("4. Castle[No], Capture[White Knight Moved], Promotion[Queen], From[87], To[96]", () => {
+    expect(Engine.encodeMoveData(0, ChessBoard.SQ.N | ChessBoard.SQ.m, ChessBoard.SQ.Q, 87, 96)).toStrictEqual(0b0000_0010_0001_0101_0101_0111_0110_0000);
   });
   test("5. Castle[KingSide], Capture[No], Promotion[No], From[95], To[98]", () => {
-    expect(Engine.encodeMoveData(1, 0, 0, 95, 98)).toStrictEqual(0b0000_0000_0100_0000_0101_1111_0110_0010);
+    expect(Engine.encodeMoveData(1, 0, 0, 95, 98)).toStrictEqual(0b0000_1000_0000_0000_0101_1111_0110_0010);
   });
 });
 
@@ -31,17 +31,17 @@ describe("Decode Move Data", () => {
       to: 22,
     });
   });
-  test("2. Castle[No], Capture[Rook], Promotion[No], From[98], To[28]", () => {
-    expect(Engine.decodeMoveData(0b0000_0000_0010_0000_0110_0010_0001_1100)).toStrictEqual({
+  test("2. Castle[No], Capture[Black Rook Unmoved], Promotion[No], From[98], To[28]", () => {
+    expect(Engine.decodeMoveData(0b0000_0000_1010_0000_0110_0010_0001_1100)).toStrictEqual({
       castle: 0,
-      capture: ChessBoard.SQ.R,
+      capture: ChessBoard.SQ.R | ChessBoard.SQ.b,
       promotion: 0,
       from: 98,
       to: 28,
     });
   });
   test("3. Castle[QueenSide], Capture[No], Promotion[No], From[25], To[21]", () => {
-    expect(Engine.decodeMoveData(0b0000_0000_1000_0000_0001_1001_0001_0101)).toStrictEqual({
+    expect(Engine.decodeMoveData(0b0001_0000_0000_0000_0001_1001_0001_0101)).toStrictEqual({
       castle: 2,
       capture: 0,
       promotion: 0,
@@ -49,17 +49,17 @@ describe("Decode Move Data", () => {
       to: 21,
     });
   });
-  test("4. Castle[No], Capture[Knight], Promotion[Queen], From[87], To[96]", () => {
-    expect(Engine.decodeMoveData(0b0000_0000_0001_0101_0101_0111_0110_0000)).toStrictEqual({
+  test("4. Castle[No], Capture[White Knight Moved], Promotion[Queen], From[87], To[96]", () => {
+    expect(Engine.decodeMoveData(0b0000_0010_0001_0101_0101_0111_0110_0000)).toStrictEqual({
       castle: 0,
-      capture: ChessBoard.SQ.N,
+      capture: ChessBoard.SQ.N | ChessBoard.SQ.m,
       promotion: ChessBoard.SQ.Q,
       from: 87,
       to: 96,
     });
   });
   test("5. Castle[KingSide], Capture[No], Promotion[No], From[95], To[98]", () => {
-    expect(Engine.decodeMoveData(0b0000_0000_0100_0000_0101_1111_0110_0010)).toStrictEqual({
+    expect(Engine.decodeMoveData(0b0000_1000_0000_0000_0101_1111_0110_0010)).toStrictEqual({
       castle: 1,
       capture: 0,
       promotion: 0,
@@ -168,9 +168,10 @@ describe("King Is In Check", () => {
 
 
 describe("Evaluate Position", () => {
-  test("1. nbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", () => {
-    const engine = new Engine("nbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    expect(engine.evaluatePosition()).toBeGreaterThanOrEqual(0);
+  test("1. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", () => {
+    const engine = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    expect(engine.evaluatePosition()).toBeLessThanOrEqual(0.25);
+    expect(engine.evaluatePosition()).toBeGreaterThanOrEqual(-0.25);
   });
   test("2. 6k1/5r1p/p1p2qp1/2Pp1p2/PP3P2/4P1P1/5K1P/1BQ1R3 w KQkq - 0 1", () => {
     const engine = new Engine("6k1/5r1p/p1p2qp1/2Pp1p2/PP3P2/4P1P1/5K1P/1BQ1R3 w KQkq - 0 1");

@@ -369,11 +369,14 @@ export default class Engine {
       this.chessboard.fullmove
     ];
     
-    const { capture, promotion, from, to } = Engine.decodeMoveData(move);
+    const { doublePush, capture, promotion, from, to } = Engine.decodeMoveData(move);
     
-    // !!!!!!!!!!!!!!!!!
-    // TODO: Update enpassant value. Encode flag for double-pawn push in move data
-    // if (doublePushFlag) this.enpassant = to, else = -1
+    // Update En Passant square (if double pawn push)
+    if (doublePush !== 0) {
+      this.chessboard.enpassant = to;
+    } else {
+      this.chessboard.enpassant = -1;
+    }
     
     const pieceFrom = this.chessboard.board[from] & ChessBoard.SQ.pc;
 
@@ -416,7 +419,7 @@ export default class Engine {
     this.chessboard.board[from] = ChessBoard.SQ.EMPTY;
 
     // CHANGE turn
-    this.chessboard.turn = this.chessboard.turn === ChessBoard.SQ.w ? ChessBoard.SQ.b : ChessBoard.SQ.b;
+    this.chessboard.turn = this.chessboard.turn === ChessBoard.SQ.w ? ChessBoard.SQ.b : ChessBoard.SQ.w;
 
     return boardState;
   }
@@ -439,7 +442,7 @@ export default class Engine {
    */
 }
 
-const test = new Engine();
-test.chessboard.printBoard("unicode");
-console.log(test.evaluatePosition());
-console.log(Engine.encodeMoveData(0, 2, 0, 0, 25, 21).toString(2));
+const engine = new Engine("r6k/8/8/8/8/8/8/K7 b - - 0 1");
+const move = Engine.encodeMoveData(0,0,0,0,21,22);
+engine.makeMove(move);
+engine.chessboard.printBoard();

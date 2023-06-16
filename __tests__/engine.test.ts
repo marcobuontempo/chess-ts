@@ -3,27 +3,31 @@ import Engine from "../src/engine";
 
 
 describe("Encode Move Data", () => {
-  test("1. Castle[No], Capture[No], Promotion[No], From[21], To[22]", () => {
-    expect(Engine.encodeMoveData(0, 0, 0, 21, 22)).toStrictEqual(0b0000_0000_0000_0000_0001_0101_0001_0110);
+  test("1. DoublePush[No], Castle[No], Capture[No], Promotion[No], From[21], To[22]", () => {
+    expect(Engine.encodeMoveData(0, 0, 0, 0, 21, 22)).toStrictEqual(0b0000_0000_0000_0000_0001_0101_0001_0110);
   });
-  test("2. Castle[No], Capture[Black Rook Unmoved], Promotion[No], From[98], To[28]", () => {
-    expect(Engine.encodeMoveData(0, ChessBoard.SQ.R | ChessBoard.SQ.b, 0, 98, 28)).toStrictEqual(0b0000_0000_1010_0000_0110_0010_0001_1100);
+  test("2. DoublePush[No], Castle[No], Capture[Black Rook Unmoved], Promotion[No], From[98], To[28]", () => {
+    expect(Engine.encodeMoveData(0, 0, ChessBoard.SQ.R | ChessBoard.SQ.b, 0, 98, 28)).toStrictEqual(0b0000_0000_1010_0000_0110_0010_0001_1100);
   });
-  test("3. Castle[QueenSide], Capture[No], Promotion[No], From[25], To[21]", () => {
-    expect(Engine.encodeMoveData(2, 0, 0, 25, 21)).toStrictEqual(0b0001_0000_0000_0000_0001_1001_0001_0101);
+  test("3. DoublePush[No], Castle[QueenSide], Capture[No], Promotion[No], From[25], To[21]", () => {
+    expect(Engine.encodeMoveData(0, 2, 0, 0, 25, 21)).toStrictEqual(0b0001_0000_0000_0000_0001_1001_0001_0101);
   });
-  test("4. Castle[No], Capture[White Knight Moved], Promotion[Queen], From[87], To[96]", () => {
-    expect(Engine.encodeMoveData(0, ChessBoard.SQ.N | ChessBoard.SQ.m, ChessBoard.SQ.Q, 87, 96)).toStrictEqual(0b0000_0010_0001_0101_0101_0111_0110_0000);
+  test("4. DoublePush[No], Castle[No], Capture[White Knight Moved], Promotion[Queen], From[87], To[96]", () => {
+    expect(Engine.encodeMoveData(0, 0, ChessBoard.SQ.N | ChessBoard.SQ.m, ChessBoard.SQ.Q, 87, 96)).toStrictEqual(0b0000_0010_0001_0101_0101_0111_0110_0000);
   });
-  test("5. Castle[KingSide], Capture[No], Promotion[No], From[95], To[98]", () => {
-    expect(Engine.encodeMoveData(1, 0, 0, 95, 98)).toStrictEqual(0b0000_1000_0000_0000_0101_1111_0110_0010);
+  test("5. DoublePush[No], Castle[KingSide], Capture[No], Promotion[No], From[95], To[98]", () => {
+    expect(Engine.encodeMoveData(0, 1, 0, 0, 95, 98)).toStrictEqual(0b0000_1000_0000_0000_0101_1111_0110_0010);
+  });
+  test("6. DoublePush[Yes], Castle[No], Capture[No], Promotion[No], From[35], To[55]", () => {
+    expect(Engine.encodeMoveData(1, 0, 0, 0, 35, 55)).toStrictEqual(0b0010_0000_0000_0000_0010_0011_0011_0111);
   });
 });
 
 
 describe("Decode Move Data", () => {
-  test("1. Castle[No], Capture[No], Promotion[No], From[21], To[22]", () => {
+  test("1. DoublePush[No], Castle[No], Capture[No], Promotion[No], From[21], To[22]", () => {
     expect(Engine.decodeMoveData(0b0000_0000_0000_0000_0001_0101_0001_0110)).toStrictEqual({
+      doublePush: 0,
       castle: 0,
       capture: 0,
       promotion: 0,
@@ -31,8 +35,9 @@ describe("Decode Move Data", () => {
       to: 22,
     });
   });
-  test("2. Castle[No], Capture[Black Rook Unmoved], Promotion[No], From[98], To[28]", () => {
+  test("2. DoublePush[No], Castle[No], Capture[Black Rook Unmoved], Promotion[No], From[98], To[28]", () => {
     expect(Engine.decodeMoveData(0b0000_0000_1010_0000_0110_0010_0001_1100)).toStrictEqual({
+      doublePush: 0,
       castle: 0,
       capture: ChessBoard.SQ.R | ChessBoard.SQ.b,
       promotion: 0,
@@ -40,8 +45,9 @@ describe("Decode Move Data", () => {
       to: 28,
     });
   });
-  test("3. Castle[QueenSide], Capture[No], Promotion[No], From[25], To[21]", () => {
+  test("3. DoublePush[No], Castle[QueenSide], Capture[No], Promotion[No], From[25], To[21]", () => {
     expect(Engine.decodeMoveData(0b0001_0000_0000_0000_0001_1001_0001_0101)).toStrictEqual({
+      doublePush: 0,
       castle: 2,
       capture: 0,
       promotion: 0,
@@ -49,8 +55,9 @@ describe("Decode Move Data", () => {
       to: 21,
     });
   });
-  test("4. Castle[No], Capture[White Knight Moved], Promotion[Queen], From[87], To[96]", () => {
+  test("4. DoublePush[No], Castle[No], Capture[White Knight Moved], Promotion[Queen], From[87], To[96]", () => {
     expect(Engine.decodeMoveData(0b0000_0010_0001_0101_0101_0111_0110_0000)).toStrictEqual({
+      doublePush: 0,
       castle: 0,
       capture: ChessBoard.SQ.N | ChessBoard.SQ.m,
       promotion: ChessBoard.SQ.Q,
@@ -58,13 +65,24 @@ describe("Decode Move Data", () => {
       to: 96,
     });
   });
-  test("5. Castle[KingSide], Capture[No], Promotion[No], From[95], To[98]", () => {
+  test("5. DoublePush[No], Castle[KingSide], Capture[No], Promotion[No], From[95], To[98]", () => {
     expect(Engine.decodeMoveData(0b0000_1000_0000_0000_0101_1111_0110_0010)).toStrictEqual({
+      doublePush: 0,
       castle: 1,
       capture: 0,
       promotion: 0,
       from: 95,
       to: 98,
+    });
+  });
+  test("6. DoublePush[Yes], Castle[No], Capture[No], Promotion[No], From[35], To[55]", () => {
+    expect(Engine.decodeMoveData(0b0010_0000_0000_0000_0010_0011_0011_0111)).toStrictEqual({
+      doublePush: 1,
+      castle: 0,
+      capture: 0,
+      promotion: 0,
+      from: 35,
+      to: 55,
     });
   });
 });

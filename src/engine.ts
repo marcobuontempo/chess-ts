@@ -2,11 +2,9 @@ import ChessBoard from "./board";
 
 export default class Engine {
   chessboard: ChessBoard;
-  moveStack: Array<Array<number | Int8Array>>;
 
   constructor(fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     this.chessboard = new ChessBoard(fen);
-    this.moveStack = [];
   }
 
   /* MOVES VALUES
@@ -27,8 +25,9 @@ export default class Engine {
     CASTLE: 0b001_1000_0000_0000_0000_0000_0000_0000,
     KS_CASTLE: 0b0000_1000_0000_0000_0000_0000_0000_0000,
     QS_CASTLE: 0b0001_0000_0000_0000_0000_0000_0000_0000,
+    DOUBLE_PUSH: 0b0010_0000_0000_0000_0000_0000_0000_0000,
     NONE: 0b0000_0000_0000_0000_0000_0000_0000_0000,
-    UNUSED: 0b1110_0000_0000_0000_0000_0000_0000_0000,
+    UNUSED: 0b1100_0000_0000_0000_0000_0000_0000_0000,
   };
 
   /**
@@ -80,15 +79,18 @@ export default class Engine {
   /**
    * ENCODES THE MOVE INFORMATION ENCODED INTO A 32UInt
    */
-  static encodeMoveData(castle: number, capture: number, promotion: number, from: number, to: number) {
-    return (castle << 27) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
+  static encodeMoveData(doublepush: number, castle: number, capture: number, promotion: number, from: number, to: number) {
+    return (doublepush << 29) | (castle << 27) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
   }
 
   /**
    * DECODES MOVE INFORMATION INTO AN OBJECT
    */
   static decodeMoveData(move: number) {
+    // TODO: output as an array for faster access: [ castle, capture, promotion, from, to]
+    //                                  e.g usage: const [ , , promotion, from, to] = decodeMoveData(m);
     return {
+      doublePush: (move & Engine.MV.DOUBLE_PUSH) >> 29,
       castle: (move & Engine.MV.CASTLE) >> 27,
       capture: (move & Engine.MV.PC_CAPTURE) >> 19,
       promotion: (move & Engine.MV.PC_PROMOTE) >> 16,
@@ -128,16 +130,16 @@ export default class Engine {
           if (squareTo === ChessBoard.SQ.EDGE) break; // off edge of board
           if (pieceTo !== 0) {
             if (((squareTo & ChessBoard.SQ.b) === this.chessboard.turn) || (pieceFrom === ChessBoard.SQ.P)) break; // occupied by same colour piece, or if piece moving is pawn (blocked by any forward pieces)
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, pieceTo, 0, from, to);
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, pieceTo, 0, from, to);
           } else {
             if ((pieceFrom === ChessBoard.SQ.P) && !(to >= 31 && to <= 88)) { // pawn on final rank -> promote
               const promotions = [ChessBoard.SQ.N, ChessBoard.SQ.B, ChessBoard.SQ.R, ChessBoard.SQ.Q];
               for (let k = 0; k < 4; k++, pmIdx++) {
-                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, promotions[k], from, to);
+                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, promotions[k], from, to);
               }
               pmIdx--; // remove extra iteration from loop, as it is done universally later on
             } else {
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, from, to);
+              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, from, to);
             }
           }
           pmIdx++;
@@ -156,7 +158,7 @@ export default class Engine {
           squareTo = this.chessboard.board[to];
           const firstSquare = this.chessboard.board[from + Engine.MOVES_LIST[pieceFrom][0]];  // first square in double push
           if ((squareTo === ChessBoard.SQ.EMPTY) && (firstSquare === ChessBoard.SQ.EMPTY)) {  // check both squares are empty
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, from, to);
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, 0, from, to);
             pmIdx++;
           }
         }
@@ -169,13 +171,13 @@ export default class Engine {
           if (squareTo === ChessBoard.SQ.EDGE) continue;
           if ((squareTo !== ChessBoard.SQ.EMPTY) || (to === this.chessboard.enpassant)) {
             if (to >= 31 && to <= 88) { // if not last rank
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, squareTo & ChessBoard.SQ.pc, 0, from, to);
+              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, squareTo & ChessBoard.SQ.pc, 0, from, to);
               pmIdx++;
             } else {
               // else, final rank, so promote
               const promotions = [ChessBoard.SQ.N, ChessBoard.SQ.B, ChessBoard.SQ.R, ChessBoard.SQ.Q];
               for (let k = 0; k < 4; k++, pmIdx++) {
-                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, promotions[k], from, to);
+                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, promotions[k], from, to);
               }
             }
           }
@@ -198,7 +200,7 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(Engine.MV.KS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.E));
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, Engine.MV.KS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.E));
             pmIdx++;
           }
         }
@@ -212,7 +214,7 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(Engine.MV.QS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, Engine.MV.QS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
             pmIdx++;
           }
         }
@@ -361,31 +363,62 @@ export default class Engine {
   makeMove(move: number) {
     // Store information that isn't encoded in the current move
     const boardState = [
-      this.chessboard.castle,
+      new Int8Array(this.chessboard.castle),
       this.chessboard.enpassant,
       this.chessboard.halfmove,
-      this.chessboard.fullmove,
-      this.chessboard.turn
+      this.chessboard.fullmove
     ];
+    
+    const { capture, promotion, from, to } = Engine.decodeMoveData(move);
+    
+    // !!!!!!!!!!!!!!!!!
+    // TODO: Update enpassant value. Encode flag for double-pawn push in move data
+    // if (doublePushFlag) this.enpassant = to, else = -1
+    
+    const pieceFrom = this.chessboard.board[from] & ChessBoard.SQ.pc;
 
-    const { castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
-
-    const squareFrom = this.chessboard.board[from];
-
-    // MOVE PIECE
-    if (promotion === 0) {
-      // move piece to new square
-      this.chessboard.board[to] = squareFrom | ChessBoard.SQ.m;
+    // UPDATE halfmove clock
+    if ((pieceFrom === ChessBoard.SQ.P) || capture !== 0) {
+      // if pawn move or capture, reset to 0
+      this.chessboard.halfmove = 0;
     } else {
-      // else, update piece if promoted
-      this.chessboard.board[to] = (squareFrom & ~ChessBoard.SQ.pc) | promotion | ChessBoard.SQ.m;
+      // else, increment
+      this.chessboard.halfmove += 1;
     }
 
-    // UPDATE CASTLE RIGHTS
+    // UPDATE fullmove clock, if black is making turn
+    if (this.chessboard.turn === ChessBoard.SQ.b) this.chessboard.fullmove += 1;
 
+    // MOVE PIECE (and set flag to 'has moved', and restore piece colour)
+    this.chessboard.board[to] = this.chessboard.board[from] | ChessBoard.SQ.m | this.chessboard.turn;
 
-    // STORE PREVIOUS BOARD STATE IN STACK
-    this.moveStack.push(boardState);
+    // IF KING, also remove 'can castle' flag
+    if (pieceFrom === ChessBoard.SQ.K) {
+      this.chessboard.board[to] &= ~ChessBoard.SQ.c;
+      
+      // and update stored castling rights
+      if (this.chessboard.turn === ChessBoard.SQ.w) {
+        this.chessboard.castle[0] = 0;
+        this.chessboard.castle[1] = 0;
+      } else {
+        this.chessboard.castle[2] = 0;
+        this.chessboard.castle[3] = 0;
+      }
+    }
+
+    // PROMOTE to new piece if possible
+    if (promotion !== 0) {
+      this.chessboard.board[to] &= ~ChessBoard.SQ.pc;
+      this.chessboard.board[to] &= promotion;
+    }
+
+    // CLEAR the square from
+    this.chessboard.board[from] = ChessBoard.SQ.EMPTY;
+
+    // CHANGE turn
+    this.chessboard.turn = this.chessboard.turn === ChessBoard.SQ.w ? ChessBoard.SQ.b : ChessBoard.SQ.b;
+
+    return boardState;
   }
 
   /**
@@ -394,10 +427,11 @@ export default class Engine {
   unmakeMove(move: number) {
     const { castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
 
-    this.chessboard.board[from] = this.chessboard.board[to];
-    this.chessboard.board[to] = this.chessboard.board[from];
-
-
+    // 1. set 'from' square back to 'board[to]' (restores moved piece) [how to restore 'has moved', 'can castle' or not? encode 1 bit into move metadata?]
+    // 2. set 'to' square to 'capture' (restores any existing piece)
+    // 3. if promotion, set 'from' back to pawn (& ~pc | P)
+    // 4. restore halfmove, fullmove, enpassant, castling
+    // 5. flip turn
   }
 
   /**
@@ -408,4 +442,4 @@ export default class Engine {
 const test = new Engine();
 test.chessboard.printBoard("unicode");
 console.log(test.evaluatePosition());
-console.log(Engine.encodeMoveData(2, 0, 0, 25, 21).toString(2));
+console.log(Engine.encodeMoveData(0, 2, 0, 0, 25, 21).toString(2));

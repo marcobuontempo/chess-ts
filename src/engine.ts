@@ -90,8 +90,8 @@ export default class Engine {
     // TODO: output as an array for faster access: [ castle, capture, promotion, from, to]
     //                                  e.g usage: const [ , , promotion, from, to] = decodeMoveData(m);
     return {
-      doublePush: (move & Engine.MV.DOUBLE_PUSH) >> 29,
-      castle: (move & Engine.MV.CASTLE) >> 27,
+      doublePush: (move & Engine.MV.DOUBLE_PUSH),
+      castle: (move & Engine.MV.CASTLE),
       capture: (move & Engine.MV.PC_CAPTURE) >> 19,
       promotion: (move & Engine.MV.PC_PROMOTE) >> 16,
       from: (move & Engine.MV.SQ_FROM) >> 8,
@@ -368,16 +368,19 @@ export default class Engine {
       this.chessboard.halfmove,
       this.chessboard.fullmove
     ];
-    
-    const { doublePush, capture, promotion, from, to } = Engine.decodeMoveData(move);
-    
+
+    const { doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+
+    // TODO: if enpassant, capture pawn
+    // to know if enpassant, encode into move data as a flag
+
     // Update En Passant square (if double pawn push)
-    if (doublePush !== 0) {
-      this.chessboard.enpassant = to;
+    if (doublePush === Engine.MV.DOUBLE_PUSH) {
+      this.chessboard.enpassant = to - 10;
     } else {
       this.chessboard.enpassant = -1;
     }
-    
+
     const pieceFrom = this.chessboard.board[from] & ChessBoard.SQ.pc;
 
     // UPDATE halfmove clock
@@ -395,10 +398,21 @@ export default class Engine {
     // MOVE PIECE (and set flag to 'has moved', and restore piece colour)
     this.chessboard.board[to] = this.chessboard.board[from] | ChessBoard.SQ.m | this.chessboard.turn;
 
+    // IF ROOK, update relevant castle rights
+    if (pieceFrom === ChessBoard.SQ.R) {
+      if (this.chessboard.turn === ChessBoard.SQ.w) {
+        if (from === 98) this.chessboard.castle[0] = 0;
+        if (from === 91) this.chessboard.castle[1] = 0;
+      } else {
+        if (from === 21) this.chessboard.castle[2] = 0;
+        if (from === 28) this.chessboard.castle[3] = 0;
+      }
+    }
+
     // IF KING, also remove 'can castle' flag
     if (pieceFrom === ChessBoard.SQ.K) {
       this.chessboard.board[to] &= ~ChessBoard.SQ.c;
-      
+
       // and update stored castling rights
       if (this.chessboard.turn === ChessBoard.SQ.w) {
         this.chessboard.castle[0] = 0;
@@ -407,6 +421,16 @@ export default class Engine {
         this.chessboard.castle[2] = 0;
         this.chessboard.castle[3] = 0;
       }
+    }
+
+    // MOVE rook if castle
+    if (castle === Engine.MV.KS_CASTLE) {
+      console.log(this.chessboard.turn);
+      this.chessboard.board[from + 3] = ChessBoard.SQ.EMPTY;
+      this.chessboard.board[from + 1] = ChessBoard.SQ.R | this.chessboard.turn | ChessBoard.SQ.m;
+    } else if (castle === Engine.MV.QS_CASTLE) {
+      this.chessboard.board[from - 4] = ChessBoard.SQ.EMPTY;
+      this.chessboard.board[from - 1] = ChessBoard.SQ.R | this.chessboard.turn | ChessBoard.SQ.m;
     }
 
     // PROMOTE to new piece if possible
@@ -442,7 +466,5 @@ export default class Engine {
    */
 }
 
-const engine = new Engine("r6k/8/8/8/8/8/8/K7 b - - 0 1");
-const move = Engine.encodeMoveData(0,0,0,0,21,22);
-engine.makeMove(move);
+const engine = new Engine("r1bkqbnr/pppppppp/1n6/8/P7/8/1PPPPPPP/RNBKQBNR b Qq - 30 82");
 engine.chessboard.printBoard();

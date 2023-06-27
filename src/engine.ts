@@ -26,8 +26,9 @@ export default class Engine {
     KS_CASTLE: 0b0000_1000_0000_0000_0000_0000_0000_0000,
     QS_CASTLE: 0b0001_0000_0000_0000_0000_0000_0000_0000,
     DOUBLE_PUSH: 0b0010_0000_0000_0000_0000_0000_0000_0000,
+    EN_PASSANT: 0b0100_0000_0000_0000_0000_0000_0000_0000,
     NONE: 0b0000_0000_0000_0000_0000_0000_0000_0000,
-    UNUSED: 0b1100_0000_0000_0000_0000_0000_0000_0000,
+    UNUSED: 0b1000_0000_0000_0000_0000_0000_0000_0000,
   };
 
   /**
@@ -79,8 +80,8 @@ export default class Engine {
   /**
    * ENCODES THE MOVE INFORMATION ENCODED INTO A 32UInt
    */
-  static encodeMoveData(doublepush: number, castle: number, capture: number, promotion: number, from: number, to: number) {
-    return (doublepush << 29) | (castle << 27) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
+  static encodeMoveData(enpassant: number, doublepush: number, castle: number, capture: number, promotion: number, from: number, to: number) {
+    return (enpassant << 30) | (doublepush << 29) | (castle << 27) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
   }
 
   /**
@@ -90,6 +91,7 @@ export default class Engine {
     // TODO: output as an array for faster access: [ castle, capture, promotion, from, to]
     //                                  e.g usage: const [ , , promotion, from, to] = decodeMoveData(m);
     return {
+      enpassant: (move & Engine.MV.EN_PASSANT),
       doublePush: (move & Engine.MV.DOUBLE_PUSH),
       castle: (move & Engine.MV.CASTLE),
       capture: (move & Engine.MV.PC_CAPTURE) >> 19,
@@ -130,16 +132,16 @@ export default class Engine {
           if (squareTo === ChessBoard.SQ.EDGE) break; // off edge of board
           if (pieceTo !== 0) {
             if (((squareTo & ChessBoard.SQ.b) === this.chessboard.turn) || (pieceFrom === ChessBoard.SQ.P)) break; // occupied by same colour piece, or if piece moving is pawn (blocked by any forward pieces)
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, pieceTo, 0, from, to);
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, pieceTo, 0, from, to);
           } else {
             if ((pieceFrom === ChessBoard.SQ.P) && !(to >= 31 && to <= 88)) { // pawn on final rank -> promote
               const promotions = [ChessBoard.SQ.N, ChessBoard.SQ.B, ChessBoard.SQ.R, ChessBoard.SQ.Q];
               for (let k = 0; k < 4; k++, pmIdx++) {
-                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, promotions[k], from, to);
+                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
               }
               pmIdx--; // remove extra iteration from loop, as it is done universally later on
             } else {
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, from, to);
+              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, 0, from, to);
             }
           }
           pmIdx++;
@@ -158,7 +160,7 @@ export default class Engine {
           squareTo = this.chessboard.board[to];
           const firstSquare = this.chessboard.board[from + Engine.MOVES_LIST[pieceFrom][0]];  // first square in double push
           if ((squareTo === ChessBoard.SQ.EMPTY) && (firstSquare === ChessBoard.SQ.EMPTY)) {  // check both squares are empty
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, 0, from, to);
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 1, 0, 0, 0, from, to);
             pmIdx++;
           }
         }
@@ -169,15 +171,22 @@ export default class Engine {
           to = from + offset;
           squareTo = this.chessboard.board[to];
           if (squareTo === ChessBoard.SQ.EDGE) continue;
-          if ((squareTo !== ChessBoard.SQ.EMPTY) || (to === this.chessboard.enpassant)) {
+          // enpassant
+          if ((squareTo !== ChessBoard.SQ.EMPTY) && (to === this.chessboard.enpassant)) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, squareTo & ChessBoard.SQ.pc, 0, from, to);
+            pmIdx++;
+            continue;
+          }
+          // normal capture
+          if ((squareTo !== ChessBoard.SQ.EMPTY)) {
             if (to >= 31 && to <= 88) { // if not last rank
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, squareTo & ChessBoard.SQ.pc, 0, from, to);
+              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, squareTo & ChessBoard.SQ.pc, 0, from, to);
               pmIdx++;
             } else {
               // else, final rank, so promote
               const promotions = [ChessBoard.SQ.N, ChessBoard.SQ.B, ChessBoard.SQ.R, ChessBoard.SQ.Q];
               for (let k = 0; k < 4; k++, pmIdx++) {
-                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, promotions[k], from, to);
+                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
               }
             }
           }
@@ -200,7 +209,7 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, Engine.MV.KS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.E));
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, Engine.MV.KS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.E));
             pmIdx++;
           }
         }
@@ -214,7 +223,7 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, Engine.MV.QS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, Engine.MV.QS_CASTLE, 0, 0, from, from + (2 * Engine.DIRECTIONS.W));
             pmIdx++;
           }
         }
@@ -369,10 +378,17 @@ export default class Engine {
       this.chessboard.fullmove
     ];
 
-    const { doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+    const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
 
-    // TODO: if enpassant, capture pawn
-    // to know if enpassant, encode into move data as a flag
+    // en passant
+    if (enpassant === Engine.MV.EN_PASSANT) {
+      // remove pawn necessary next to enpassant square (+1 row for white capturing, -1 row for black capturing)
+      if (this.chessboard.enpassant >= 41 && this.chessboard.enpassant <= 48) {
+        this.chessboard.board[to + 10] = ChessBoard.SQ.EMPTY;
+      } else if (this.chessboard.enpassant >= 61 && this.chessboard.enpassant <= 68) {
+        this.chessboard.board[to - 10] = ChessBoard.SQ.EMPTY;
+      }
+    }
 
     // Update En Passant square (if double pawn push)
     if (doublePush === Engine.MV.DOUBLE_PUSH) {
@@ -466,5 +482,8 @@ export default class Engine {
    */
 }
 
-const engine = new Engine("r1bkqbnr/pppppppp/1n6/8/P7/8/1PPPPPPP/RNBKQBNR b Qq - 30 82");
+const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
+engine.chessboard.printBoard();
+const move = Engine.encodeMoveData(1, 0, 0, ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m, 0, 55, 43);
+engine.makeMove(move);
 engine.chessboard.printBoard();

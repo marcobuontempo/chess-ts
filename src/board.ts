@@ -364,8 +364,8 @@ export default class ChessBoard {
 
     process.stdout.write(" | |\n+-----------------------------+\n");
     process.stdout.write(`Turn: ${ChessBoard.SQ_R[this.turn as keyof typeof ChessBoard.SQ_R]}\n`);
-    process.stdout.write(`Castle: ${this.castle}\n`);
-    process.stdout.write(`En Passant Square: ${this.enpassant}\n`);
+    process.stdout.write(`Castle: ${["K","Q","k","q"].filter((v,i) => this.castle[i]===1).join("")}\n`);
+    process.stdout.write(`En Passant Square: ${this.enpassant===-1 ? "N/A" : this.enpassant}\n`);
     process.stdout.write(`Halfmove: ${this.halfmove}\n`);
     process.stdout.write(`Fullmove: ${this.fullmove}\n`);
     process.stdout.write("+-----------------------------+\n");

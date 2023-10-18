@@ -326,7 +326,7 @@ describe("Make Move", () => {
     expect(engine.chessboard.castle).toStrictEqual(new Int8Array([0, 1, 0, 1]));
     expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.w);
   });
-  test("6. En Passant", () => {
+  test("7. En Passant", () => {
     const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
     const move = Engine.encodeMoveData(1, 0, 0, ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m, 0, 55, 44);
     engine.makeMove(move);
@@ -343,13 +343,89 @@ describe("Make Move", () => {
     expect(engine.chessboard.castle).toStrictEqual(new Int8Array([1, 0, 1, 0]));
     expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.b);
   });
-  // CAPTURE
 });
 
 
 //TODO
 describe("Unmake Move", () => {
-  test("PLACEHOLDER", () => {
-    expect(true).toStrictEqual(true);
+  test("1. Regular Move", () => {
+    const engine = new Engine("r6k/8/8/8/8/8/8/K7 b - - 0 1");
+    const move = Engine.encodeMoveData(0, 0, 0, 0, 0, 21, 22);
+    engine.makeMove(move);
+    engine.unmakeMove();
+
+    expect(engine.chessboard.board[21]).toStrictEqual(ChessBoard.SQ.R | ChessBoard.SQ.b | ChessBoard.SQ.m);
+    expect(engine.chessboard.board[22]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    expect(engine.chessboard.halfmove).toStrictEqual(0);
+    expect(engine.chessboard.fullmove).toStrictEqual(1);
+    expect(engine.chessboard.enpassant).toStrictEqual(-1);
+    expect(engine.chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 0]));
+    expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.b);
   });
+  test("2. Two Ply", () => {
+    const engine = new Engine("r6k/8/8/8/8/8/8/R6K b - - 0 1");
+    // First Move
+    const move1 = Engine.encodeMoveData(0, 0, 0, 0, 0, 21, 22);
+    engine.makeMove(move1);
+    // Second Move
+    const move2 = Engine.encodeMoveData(0, 0, 0, 0, 0, 91, 61);
+    engine.makeMove(move2);
+    // Unmake Second
+    engine.unmakeMove();
+    expect(engine.chessboard.board[91]).toStrictEqual(ChessBoard.SQ.R | ChessBoard.SQ.w | ChessBoard.SQ.m);
+    expect(engine.chessboard.board[61]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    expect(engine.chessboard.halfmove).toStrictEqual(1);
+    expect(engine.chessboard.fullmove).toStrictEqual(2);
+    expect(engine.chessboard.enpassant).toStrictEqual(-1);
+    expect(engine.chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 0]));
+    expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.w);
+    // Unmake First
+    engine.unmakeMove();
+    expect(engine.chessboard.board[21]).toStrictEqual(ChessBoard.SQ.R | ChessBoard.SQ.b | ChessBoard.SQ.m);
+    expect(engine.chessboard.board[22]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    expect(engine.chessboard.halfmove).toStrictEqual(0);
+    expect(engine.chessboard.fullmove).toStrictEqual(1);
+    expect(engine.chessboard.enpassant).toStrictEqual(-1);
+    expect(engine.chessboard.castle).toStrictEqual(new Int8Array([0, 0, 0, 0]));
+    expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.b);
+  });
+
+  test("3. Double Pawn Push", () => {
+    const engine = new Engine("r3k3/8/8/8/8/8/P7/R3k2R w KQq - 20 80");
+    const move = Engine.encodeMoveData(0, 1, 0, 0, 0, 81, 61);
+    engine.makeMove(move);
+    engine.unmakeMove();
+    
+    expect(engine.chessboard.board[81]).toStrictEqual(ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m);
+    expect(engine.chessboard.board[61]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    expect(engine.chessboard.halfmove).toStrictEqual(20);
+    expect(engine.chessboard.fullmove).toStrictEqual(80);
+    expect(engine.chessboard.enpassant).toStrictEqual(-1);
+    expect(engine.chessboard.castle).toStrictEqual(new Int8Array([1, 1, 0, 1]));
+    expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.w);
+  });
+
+  test("4. Queenside Castle", () => {
+    const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b Kkq - 20 35");
+    const move = Engine.encodeMoveData(0, 0, 2, 0, 0, 25, 23);
+    engine.makeMove(move);
+    engine.unmakeMove();
+
+    // Original King's Square
+    expect(engine.chessboard.board[25]).toStrictEqual(ChessBoard.SQ.K | ChessBoard.SQ.b | ChessBoard.SQ.c);
+    // Castled King's Square
+    expect(engine.chessboard.board[23]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    // Original Rook's Square
+    expect(engine.chessboard.board[21]).toStrictEqual(ChessBoard.SQ.R | ChessBoard.SQ.b);
+    // Castled Rook's Square
+    expect(engine.chessboard.board[24]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    // Board State
+    expect(engine.chessboard.halfmove).toStrictEqual(20);
+    expect(engine.chessboard.fullmove).toStrictEqual(35);
+    expect(engine.chessboard.enpassant).toStrictEqual(-1);
+    expect(engine.chessboard.castle).toStrictEqual(new Int8Array([1, 0, 1, 1]));
+    expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.b);
+  });
+
+
 });

@@ -1,0 +1,2 @@
+1. makeMove, use meaningful constant values instead of hardcoding numbers
+2. move all constants to separate file (i.e KING instead of SQ.K)

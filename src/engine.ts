@@ -2,9 +2,11 @@ import ChessBoard from "./board";
 
 export default class Engine {
   chessboard: ChessBoard;
+  history: Array<any>;
 
   constructor(fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     this.chessboard = new ChessBoard(fen);
+    this.history = [];
   }
 
   /* MOVES VALUES
@@ -367,7 +369,7 @@ export default class Engine {
 
 
   /**
-   * TODO: MAKE MOVE ()
+   * MAKE MOVE ()
    */
   makeMove(move: number) {
     // Store information that isn't encoded in the current move
@@ -375,7 +377,8 @@ export default class Engine {
       new Int8Array(this.chessboard.castle),
       this.chessboard.enpassant,
       this.chessboard.halfmove,
-      this.chessboard.fullmove
+      this.chessboard.fullmove,
+      move
     ];
 
     const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
@@ -441,7 +444,6 @@ export default class Engine {
 
     // MOVE rook if castle
     if (castle === Engine.MV.KS_CASTLE) {
-      console.log(this.chessboard.turn);
       this.chessboard.board[from + 3] = ChessBoard.SQ.EMPTY;
       this.chessboard.board[from + 1] = ChessBoard.SQ.R | this.chessboard.turn | ChessBoard.SQ.m;
     } else if (castle === Engine.MV.QS_CASTLE) {
@@ -461,20 +463,61 @@ export default class Engine {
     // CHANGE turn
     this.chessboard.turn = this.chessboard.turn === ChessBoard.SQ.w ? ChessBoard.SQ.b : ChessBoard.SQ.w;
 
-    return boardState;
+    // PUSH previous board state to stack
+    this.history.push(boardState);
   }
 
   /**
    * TODO: UNMAKE MOVE ()
    */
-  unmakeMove(move: number) {
-    const { castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+  unmakeMove() {
+    // RESET to previous board state
+    const [prevCastle, prevEnPassant, prevHalfmove, prevFullmove, move] = this.history.pop();
+    this.chessboard.castle = prevCastle;
+    this.chessboard.enpassant = prevEnPassant;
+    this.chessboard.halfmove = prevHalfmove;
+    this.chessboard.fullmove = prevFullmove;
+
+    const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+
 
     // 1. set 'from' square back to 'board[to]' (restores moved piece) [how to restore 'has moved', 'can castle' or not? encode 1 bit into move metadata?]
+    this.chessboard.board[from] = this.chessboard.board[to];
     // 2. set 'to' square to 'capture' (restores any existing piece)
+    if (from === enpassant) {
+      // restore en passant capture
+      if (enpassant >= 41 && enpassant <= 48) {
+        this.chessboard.board[to + 10] = capture;
+      } else if (this.chessboard.enpassant >= 61 && this.chessboard.enpassant <= 68) {
+        this.chessboard.board[to - 10] = capture;
+      }
+      this.chessboard.board[to] = ChessBoard.SQ.EMPTY;
+    } else {
+      this.chessboard.board[to] = capture;
+    }
+
+    // MOVE rook and king back if castled
+    if (castle === Engine.MV.KS_CASTLE) {
+      this.chessboard.board[from + 3] = this.chessboard.board[from + 1] & ~ChessBoard.SQ.m; // return rook to position
+      this.chessboard.board[from] |= ChessBoard.SQ.c;  // return king state to 'can castle'
+      this.chessboard.board[from] &= ~ChessBoard.SQ.m;  // return king state to 'unmoved'
+      this.chessboard.board[to] = ChessBoard.SQ.EMPTY; 
+      this.chessboard.board[from + 1] = ChessBoard.SQ.EMPTY;
+    } else if (castle === Engine.MV.QS_CASTLE) {
+      this.chessboard.board[from - 4] = this.chessboard.board[from - 1] & ~ChessBoard.SQ.m; // return rook to position
+      this.chessboard.board[from] |= ChessBoard.SQ.c;  // return king state to 'can castle'
+      this.chessboard.board[from] &= ~ChessBoard.SQ.m;  // return king state to 'unmoved'
+      this.chessboard.board[to] = ChessBoard.SQ.EMPTY; 
+      this.chessboard.board[from - 1] = ChessBoard.SQ.EMPTY; 
+    }
+
     // 3. if promotion, set 'from' back to pawn (& ~pc | P)
-    // 4. restore halfmove, fullmove, enpassant, castling
-    // 5. flip turn
+    if (promotion !== 0) {
+      this.chessboard.board[from] &= ~ChessBoard.SQ.pc;
+      this.chessboard.board[from] |= ChessBoard.SQ.P;
+    }
+    // 4. flip turn
+    this.chessboard.turn = this.chessboard.turn === ChessBoard.SQ.w ? ChessBoard.SQ.b : ChessBoard.SQ.w;
   }
 
   /**
@@ -482,8 +525,3 @@ export default class Engine {
    */
 }
 
-const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
-engine.chessboard.printBoard();
-const move = Engine.encodeMoveData(1, 0, 0, ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m, 0, 55, 43);
-engine.makeMove(move);
-engine.chessboard.printBoard();

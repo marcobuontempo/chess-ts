@@ -328,7 +328,8 @@ describe("Make Move", () => {
   });
   test("7. En Passant", () => {
     const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
-    const move = Engine.encodeMoveData(1, 0, 0, ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m, 0, 55, 44);
+    const pawnCapture = engine.chessboard.board[44];
+    const move = Engine.encodeMoveData(1, 0, 0, pawnCapture, 0, 55, 44);
     engine.makeMove(move);
     // Square Updates
     expect(engine.chessboard.board[54]).toStrictEqual(ChessBoard.SQ.EMPTY);
@@ -466,21 +467,23 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.b);
   });
 
-  // test("7. En Passant", () => {
-  //   const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
-  //   const move = Engine.encodeMoveData(1, 0, 0, ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m, 0, 55, 44);
-  //   engine.makeMove(move);
-  //   // Square Updates
-  //   expect(engine.chessboard.board[54]).toStrictEqual(ChessBoard.SQ.EMPTY);
-  //   expect(engine.chessboard.board[55]).toStrictEqual(ChessBoard.SQ.EMPTY);
-  //   expect(engine.chessboard.board[44]).toStrictEqual(ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m);
-  //   // Empty Pawn Push Confirmation
-  //   expect(engine.chessboard.board[45]).toStrictEqual(ChessBoard.SQ.EMPTY);
-  //   // Board State
-  //   expect(engine.chessboard.halfmove).toStrictEqual(0);
-  //   expect(engine.chessboard.fullmove).toStrictEqual(99);
-  //   expect(engine.chessboard.enpassant).toStrictEqual(-1);
-  //   expect(engine.chessboard.castle).toStrictEqual(new Int8Array([1, 0, 1, 0]));
-  //   expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.b);
-  // });
+  test("7. En Passant", () => {
+    const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
+    const pawnCapture = engine.chessboard.board[44];
+    const move = Engine.encodeMoveData(1, 0, 0, pawnCapture, 0, 55, 44);
+    engine.makeMove(move);
+    engine.unmakeMove();
+    // Restored Squares
+    expect(engine.chessboard.board[54]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    expect(engine.chessboard.board[44]).toStrictEqual(pawnCapture);
+    expect(engine.chessboard.board[55]).toStrictEqual(ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m);
+    // Empty Pawn Push Confirmation
+    expect(engine.chessboard.board[45]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    // Board State
+    expect(engine.chessboard.halfmove).toStrictEqual(0);
+    expect(engine.chessboard.fullmove).toStrictEqual(99);
+    expect(engine.chessboard.enpassant).toStrictEqual(44);
+    expect(engine.chessboard.castle).toStrictEqual(new Int8Array([1, 0, 1, 0]));
+    expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.w);
+  });
 });

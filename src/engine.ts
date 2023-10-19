@@ -525,3 +525,14 @@ export default class Engine {
    */
 }
 
+
+const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Kkq - 20 35");
+console.log("A",engine.chessboard.board[95], engine.chessboard.board[97], engine.chessboard.board[98], engine.chessboard.board[96]);
+const move = Engine.encodeMoveData(0, 0, 1, 0, 0, 95, 97);
+engine.chessboard.printBoard();
+engine.makeMove(move);
+engine.chessboard.printBoard();
+engine.unmakeMove();
+engine.chessboard.printBoard();
+console.log(ChessBoard.decodeSquare(engine.chessboard.board[25]));
+console.log("B",engine.chessboard.board[95], engine.chessboard.board[97], engine.chessboard.board[98], engine.chessboard.board[96]);

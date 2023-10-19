@@ -313,7 +313,7 @@ describe("Make Move", () => {
   });
   test("6. Piece Capture", () => {
     const engine = new Engine("r1bkqbnr/pppppppp/1n6/8/P7/8/1PPPPPPP/RNBKQBNR b Qq - 30 82");
-    const pawnCapture = ChessBoard.SQ.P | ChessBoard.SQ.w | ChessBoard.SQ.m;
+    const pawnCapture = engine.chessboard.board[61];
     const move = Engine.encodeMoveData(0, 0, 0, pawnCapture, 0, 42, 61);
     engine.makeMove(move);
     // Square Updates

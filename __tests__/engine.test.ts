@@ -427,5 +427,27 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.b);
   });
 
+  test("5. Kingside Castle", () => {
+    const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Kkq - 20 35");
+    const move = Engine.encodeMoveData(0, 0, 1, 0, 0, 95, 97);
+    engine.makeMove(move);
+    engine.unmakeMove();
 
+    // Original King's Square
+    expect(engine.chessboard.board[95]).toStrictEqual(ChessBoard.SQ.K | ChessBoard.SQ.w | ChessBoard.SQ.c);
+    // Castled King's Square
+    expect(engine.chessboard.board[97]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    // Original Rook's Square
+    expect(engine.chessboard.board[98]).toStrictEqual(ChessBoard.SQ.R | ChessBoard.SQ.w);
+    // Castled Rook's Square
+    expect(engine.chessboard.board[96]).toStrictEqual(ChessBoard.SQ.EMPTY);
+    // Board State
+    expect(engine.chessboard.halfmove).toStrictEqual(20);
+    expect(engine.chessboard.fullmove).toStrictEqual(35);
+    expect(engine.chessboard.enpassant).toStrictEqual(-1);
+    expect(engine.chessboard.castle).toStrictEqual(new Int8Array([1, 0, 1, 1]));
+    expect(engine.chessboard.turn).toStrictEqual(ChessBoard.SQ.w);
+  });
+
+ 
 });

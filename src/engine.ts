@@ -104,6 +104,33 @@ export default class Engine {
   }
 
   /**
+   * CONVERTS A MOVE TO *BASIC* CHESS NOTATION
+   */
+  static convertMoveToNotation(move: number, squareFrom: number) {
+    let notation = "";
+
+    const { castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+    
+    if (castle === Engine.MV.QS_CASTLE) {
+      return "O-O-O";
+    }
+    if (castle === Engine.MV.KS_CASTLE) {
+      return "O-O";
+    }
+    
+    const { piece: pieceFrom } = ChessBoard.decodeSquare(squareFrom);
+
+    // pawn push -> 'e4'
+    // pawn capture -> 'exd4'
+    // piece move -> 'Nf6'
+    // piece capture -> 'Nxf6'
+    // check -> 'Qc8+'
+    // checkmate -> 'Qc8#'
+
+    return notation;
+  }
+
+  /**
    * PSEUDO-LEGAL MOVE GENERATOR
    */
   generatePseudoMoves() {
@@ -481,7 +508,7 @@ export default class Engine {
     const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
 
 
-    // 1. set 'from' square back to 'board[to]' (restores moved piece) [how to restore 'has moved', 'can castle' or not? encode 1 bit into move metadata?]
+    // 1. set 'from' square back to 'board[to]' (restores moved piece)
     this.chessboard.board[from] = this.chessboard.board[to];
     // 2. set 'to' square to 'capture' (restores any existing piece)
     if (from === enpassant) {
@@ -523,16 +550,37 @@ export default class Engine {
   /**
    * TODO: PERFT FUNCTION +++ UNIT TESTS
    */
+  perft(depth: number) {
+    if(depth === 0) return 1;
+
+    let nodes = 0;
+
+    const moves = this.generatePseudoMoves();
+
+    for(let i=0; i<=218; i++) {
+      if(moves[i] === 0) break;
+      this.makeMove(moves[i]);
+      if (!this.kingIsInCheck(this.chessboard.turn)) {
+        nodes += this.perft(depth - 1);
+      }
+      this.unmakeMove();
+      console.log(nodes);
+    }
+
+    return nodes;
+  }
+
 }
 
+// const engine = new Engine();
+// const perft = engine.perft(2);
+// console.log(perft);
 
-const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Kkq - 20 35");
-console.log("A",engine.chessboard.board[95], engine.chessboard.board[97], engine.chessboard.board[98], engine.chessboard.board[96]);
-const move = Engine.encodeMoveData(0, 0, 1, 0, 0, 95, 97);
-engine.chessboard.printBoard();
-engine.makeMove(move);
-engine.chessboard.printBoard();
-engine.unmakeMove();
-engine.chessboard.printBoard();
-console.log(ChessBoard.decodeSquare(engine.chessboard.board[25]));
-console.log("B",engine.chessboard.board[95], engine.chessboard.board[97], engine.chessboard.board[98], engine.chessboard.board[96]);
+const engine = new Engine();
+// engine.chessboard.printBoard();
+
+const moves = engine.generatePseudoMoves();
+const move = moves[0];
+console.log(Engine.convertMoveToNotation(move));
+// engine.makeMove(move);
+// engine.chessboard.printBoard();

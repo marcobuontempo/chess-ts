@@ -1,52 +1,54 @@
 import ChessBoard from "../src/board";
+import { MAILBOX120, MAILBOX64 } from "../src/board-constants";
+import { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, CAN_CASTLE, HAS_MOVED, WHITE, BLACK } from "../src/piece-constants";
 
 
 describe("Unmoved Piece Values", () => {
   describe("white pieces", () => {
     test("1. white pawn should equal 1", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.P).toStrictEqual(1);
+      expect(WHITE | PAWN).toStrictEqual(1);
     });
     test("2. white knight should equal 2", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.N).toStrictEqual(2);
+      expect(WHITE | KNIGHT).toStrictEqual(2);
     });
     test("3. white bishop should equal 3", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.B).toStrictEqual(3);
+      expect(WHITE | BISHOP).toStrictEqual(3);
     });
     test("4. white rook should equal 4", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.R).toStrictEqual(4);
+      expect(WHITE | ROOK).toStrictEqual(4);
     });
     test("5. white queen should equal 5", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.Q).toStrictEqual(5);
+      expect(WHITE | QUEEN).toStrictEqual(5);
     });
     test("6. white king should equal 6", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.K).toStrictEqual(6);
+      expect(WHITE | KING).toStrictEqual(6);
     });
     test("7. white king (with castle) should equal 38", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.K | ChessBoard.SQ.c).toStrictEqual(38);
+      expect(WHITE | KING | CAN_CASTLE).toStrictEqual(38);
     });
   });
 
   describe("black pieces", () => {
     test("1. black pawn should equal 17", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.P).toStrictEqual(17);
+      expect(BLACK | PAWN).toStrictEqual(17);
     });
     test("2. black knight should equal 18", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.N).toStrictEqual(18);
+      expect(BLACK | KNIGHT).toStrictEqual(18);
     });
     test("3. black bishop should equal 19", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.B).toStrictEqual(19);
+      expect(BLACK | BISHOP).toStrictEqual(19);
     });
     test("4. black rook should equal 20", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.R).toStrictEqual(20);
+      expect(BLACK | ROOK).toStrictEqual(20);
     });
     test("5. black queen should equal 21", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.Q).toStrictEqual(21);
+      expect(BLACK | QUEEN).toStrictEqual(21);
     });
     test("6. black king should equal 22", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.K).toStrictEqual(22);
+      expect(BLACK | KING).toStrictEqual(22);
     });
     test("7. black king (with castle) should equal 54", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.K | ChessBoard.SQ.c).toStrictEqual(54);
+      expect(BLACK | KING | CAN_CASTLE).toStrictEqual(54);
     });
   });
 });
@@ -55,43 +57,43 @@ describe("Unmoved Piece Values", () => {
 describe("Moved Piece Values", () => {
   describe("white pieces", () => {
     test("1. white pawn should equal 65", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.P | ChessBoard.SQ.m).toStrictEqual(65);
+      expect(WHITE | PAWN | HAS_MOVED).toStrictEqual(65);
     });
     test("2. white knight should equal 66", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.N | ChessBoard.SQ.m).toStrictEqual(66);
+      expect(WHITE | KNIGHT | HAS_MOVED).toStrictEqual(66);
     });
     test("3. white bishop should equal 67", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.B | ChessBoard.SQ.m).toStrictEqual(67);
+      expect(WHITE | BISHOP | HAS_MOVED).toStrictEqual(67);
     });
     test("4. white rook should equal 68", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.R | ChessBoard.SQ.m).toStrictEqual(68);
+      expect(WHITE | ROOK | HAS_MOVED).toStrictEqual(68);
     });
     test("5. white queen should equal 69", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.Q | ChessBoard.SQ.m).toStrictEqual(69);
+      expect(WHITE | QUEEN | HAS_MOVED).toStrictEqual(69);
     });
     test("6. white king should equal 70", () => {
-      expect(ChessBoard.SQ.w | ChessBoard.SQ.K | ChessBoard.SQ.m).toStrictEqual(70);
+      expect(WHITE | KING | HAS_MOVED).toStrictEqual(70);
     });
   });
 
   describe("black pieces", () => {
     test("1. black pawn should equal 81", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.P | ChessBoard.SQ.m).toStrictEqual(81);
+      expect(BLACK | PAWN | HAS_MOVED).toStrictEqual(81);
     });
     test("2. black knight should equal 82", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.N | ChessBoard.SQ.m).toStrictEqual(82);
+      expect(BLACK | KNIGHT | HAS_MOVED).toStrictEqual(82);
     });
     test("3. black bishop should equal 83", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.B | ChessBoard.SQ.m).toStrictEqual(83);
+      expect(BLACK | BISHOP | HAS_MOVED).toStrictEqual(83);
     });
     test("4. black rook should equal 84", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.R | ChessBoard.SQ.m).toStrictEqual(84);
+      expect(BLACK | ROOK | HAS_MOVED).toStrictEqual(84);
     });
     test("5. black queen should equal 85", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.Q | ChessBoard.SQ.m).toStrictEqual(85);
+      expect(BLACK | QUEEN | HAS_MOVED).toStrictEqual(85);
     });
     test("6. black king should equal 86", () => {
-      expect(ChessBoard.SQ.b | ChessBoard.SQ.K | ChessBoard.SQ.m).toStrictEqual(86);
+      expect(BLACK | KING | HAS_MOVED).toStrictEqual(86);
     });
   });
 });
@@ -99,13 +101,13 @@ describe("Moved Piece Values", () => {
 
 describe("Mailbox Arrays", () => {
   test("mailbox64 length", () => {
-    expect(ChessBoard.mailbox64.length).toStrictEqual(64);
+    expect(MAILBOX64.length).toStrictEqual(64);
   });
   test("mailbox120 length", () => {
-    expect(ChessBoard.mailbox120.length).toStrictEqual(120);
+    expect(MAILBOX120.length).toStrictEqual(120);
   });
   test("mailbox120 '-1' count", () => {
-    expect(ChessBoard.mailbox120.filter(i => i === -1).length).toStrictEqual(56);
+    expect(MAILBOX120.filter(i => i === -1).length).toStrictEqual(56);
   });
 });
 

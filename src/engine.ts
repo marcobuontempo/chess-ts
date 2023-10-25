@@ -1,4 +1,6 @@
 import ChessBoard from "./board";
+import { COLOUR_MASK, EDGE, EMPTY, MAILBOX64, PIECE_MASK } from "./board-constants";
+import { BISHOP, BLACK, CAN_CASTLE, HAS_MOVED, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE } from "./piece-constants";
 
 export default class Engine {
   chessboard: ChessBoard;
@@ -138,18 +140,19 @@ export default class Engine {
     let pmIdx = 0; // current index to store pseudo move
 
     for (let i = 0; i < 64; i++) {
-      const from = ChessBoard.mailbox64[i];  // get the mailbox index for the padded board
+      const from = MAILBOX64[i];  // get the mailbox index for the padded board
       const squareFrom = this.chessboard.board[from]; // get the encoded square information
-      const colourFrom = squareFrom & ChessBoard.SQ.b;  // check the piece colour only
-      let pieceFrom = squareFrom & ChessBoard.SQ.pc; // check the piece type only
+      // TODO -> USE DECODESQUARE INSTEAD OF INDIVIDUAL BITWISE OPERATIONS
+      const colourFrom = squareFrom & COLOUR_MASK;  // check the piece colour only
+      let pieceFrom = squareFrom & PIECE_MASK; // check the piece type only
       let to; // index for where the move will be to
       let squareTo; // encoded square information for square to
       let offset; // the amount to change direction (e.g. -10 for South, +1 for East, etc.)
 
-      if (squareFrom === ChessBoard.SQ.EMPTY) continue;  // skip if no piece on square
+      if (squareFrom === EMPTY) continue;  // skip if no piece on square
       if (colourFrom !== this.chessboard.turn) continue; // skip if piece is not for current turn
 
-      if ((pieceFrom === ChessBoard.SQ.P) && (colourFrom === ChessBoard.SQ.b)) pieceFrom -= 1; // use 0 as piece value for black pawn (e.g. to access MOVES_LIST[0] instead of MOVES_LIST[1])
+      if ((pieceFrom === PAWN) && (colourFrom === BLACK)) pieceFrom -= 1; // use 0 as piece value for black pawn (e.g. to access MOVES_LIST[0] instead of MOVES_LIST[1])
 
       for (let j = 0; j < Engine.MOVES_LIST[pieceFrom].length; j++) { // iterate through the piece's possible move directions
         const offset = Engine.MOVES_LIST[pieceFrom][j];  // the direction to move
@@ -157,14 +160,14 @@ export default class Engine {
 
         while (true) { // infinite loop until a break is hit. i.e. edge of board, capture, or piece isn't 'slider'
           squareTo = this.chessboard.board[to];
-          const pieceTo = squareTo & ChessBoard.SQ.pc;
-          if (squareTo === ChessBoard.SQ.EDGE) break; // off edge of board
+          const pieceTo = squareTo & PIECE_MASK;
+          if (squareTo === EDGE) break; // off edge of board
           if (pieceTo !== 0) {
-            if (((squareTo & ChessBoard.SQ.b) === this.chessboard.turn) || (pieceFrom === ChessBoard.SQ.P)) break; // occupied by same colour piece, or if piece moving is pawn (blocked by any forward pieces)
+            if (((squareTo & COLOUR_MASK) === this.chessboard.turn) || (pieceFrom === PAWN)) break; // occupied by same colour piece, or if piece moving is pawn (blocked by any forward pieces)
             pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, pieceTo, 0, from, to);
           } else {
-            if ((pieceFrom === ChessBoard.SQ.P) && !(to >= 31 && to <= 88)) { // pawn on final rank -> promote
-              const promotions = [ChessBoard.SQ.N, ChessBoard.SQ.B, ChessBoard.SQ.R, ChessBoard.SQ.Q];
+            if ((pieceFrom === PAWN) && !(to >= 31 && to <= 88)) { // pawn on final rank -> promote
+              const promotions = [KNIGHT, BISHOP, ROOK, QUEEN];
               for (let k = 0; k < 4; k++, pmIdx++) {
                 pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
               }
@@ -177,18 +180,18 @@ export default class Engine {
           if (Engine.SLIDERS[pieceFrom] === false) break;  // it shouldn't progress more than 1 step in any direction if it isn't a slider piece
           to += offset; // increment next step
         }
-        if (pieceFrom === ChessBoard.SQ.P) break; // only the single push is used here, the 'special' moves are calculated next
+        if (pieceFrom === PAWN) break; // only the single push is used here, the 'special' moves are calculated next
       }
 
       // SPECIAL PAWN MOVES
-      if (pieceFrom === ChessBoard.SQ.P) {
+      if (pieceFrom === PAWN) {
         // double push
-        if ((squareFrom & ChessBoard.SQ.m) === 0) {  // piece hasn't moved
+        if ((squareFrom & HAS_MOVED) === 0) {  // piece hasn't moved
           offset = Engine.MOVES_LIST[pieceFrom][1];
           to = from + offset;
           squareTo = this.chessboard.board[to];
           const firstSquare = this.chessboard.board[from + Engine.MOVES_LIST[pieceFrom][0]];  // first square in double push
-          if ((squareTo === ChessBoard.SQ.EMPTY) && (firstSquare === ChessBoard.SQ.EMPTY)) {  // check both squares are empty
+          if ((squareTo === EMPTY) && (firstSquare === EMPTY)) {  // check both squares are empty
             pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 1, 0, 0, 0, from, to);
             pmIdx++;
           }
@@ -199,21 +202,21 @@ export default class Engine {
           offset = Engine.MOVES_LIST[pieceFrom][j];
           to = from + offset;
           squareTo = this.chessboard.board[to];
-          if (squareTo === ChessBoard.SQ.EDGE) continue;
+          if (squareTo === EDGE) continue;
           // enpassant
-          if ((squareTo !== ChessBoard.SQ.EMPTY) && (to === this.chessboard.enpassant)) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, squareTo & ChessBoard.SQ.pc, 0, from, to);
+          if ((squareTo !== EMPTY) && (to === this.chessboard.enpassant)) {
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, squareTo & PIECE_MASK, 0, from, to);
             pmIdx++;
             continue;
           }
           // normal capture
-          if ((squareTo !== ChessBoard.SQ.EMPTY)) {
+          if ((squareTo !== EMPTY)) {
             if (to >= 31 && to <= 88) { // if not last rank
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, squareTo & ChessBoard.SQ.pc, 0, from, to);
+              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, squareTo & PIECE_MASK, 0, from, to);
               pmIdx++;
             } else {
               // else, final rank, so promote
-              const promotions = [ChessBoard.SQ.N, ChessBoard.SQ.B, ChessBoard.SQ.R, ChessBoard.SQ.Q];
+              const promotions = [KNIGHT, BISHOP, ROOK, QUEEN];
               for (let k = 0; k < 4; k++, pmIdx++) {
                 pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
               }
@@ -223,16 +226,16 @@ export default class Engine {
       }
 
       // CASTLING
-      if ((pieceFrom === ChessBoard.SQ.K) && (squareFrom !== ChessBoard.SQ.m)) { // ensure king hasn't moved
+      if ((pieceFrom === KING) && (squareFrom !== HAS_MOVED)) { // ensure king hasn't moved TODO: INCORRECT HASMOVED USAGE
         const squareRookKing = this.chessboard.board[from + (3 * Engine.DIRECTIONS.E)]; // kingside rook square
         const squareRookQueen = this.chessboard.board[from + (4 * Engine.DIRECTIONS.W)];  // queenside rook square
 
         // Kingside - Check if rook is on starting square and hasn't moved
-        if (((squareRookKing & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookKing & ChessBoard.SQ.m) === 0) {
+        if (((squareRookKing & PIECE_MASK) === ROOK) && (squareRookKing & HAS_MOVED) === 0) {
           let kingCanCastle = true;
           // Ensure squares are empty between king and rook
           for (let k = 1; k <= 2; k++) {
-            if (this.chessboard.board[from + (k * Engine.DIRECTIONS.E)] !== ChessBoard.SQ.EMPTY) {
+            if (this.chessboard.board[from + (k * Engine.DIRECTIONS.E)] !== EMPTY) {
               kingCanCastle = false;
               break;
             }
@@ -243,10 +246,10 @@ export default class Engine {
           }
         }
         // Queenside
-        if (((squareRookQueen & ChessBoard.SQ.pc) === ChessBoard.SQ.R) && (squareRookQueen & ChessBoard.SQ.m) === 0) {
+        if (((squareRookQueen & PIECE_MASK) === ROOK) && (squareRookQueen & HAS_MOVED) === 0) {
           let kingCanCastle = true;
           for (let k = 1; k <= 3; k++) {
-            if (this.chessboard.board[from + (k * Engine.DIRECTIONS.W)] !== ChessBoard.SQ.EMPTY) {
+            if (this.chessboard.board[from + (k * Engine.DIRECTIONS.W)] !== EMPTY) {
               kingCanCastle = false;
               break;
             }
@@ -272,12 +275,12 @@ export default class Engine {
     let kingInCheck = false;
 
     for (let i = 0; i < 64; i++) {
-      const from = ChessBoard.mailbox64[i];
+      const from = MAILBOX64[i];
       const squareFrom = this.chessboard.board[from];
-      const pieceFrom = squareFrom & ChessBoard.SQ.pc;
-      const colourFrom = squareFrom & ChessBoard.SQ.b;
+      const pieceFrom = squareFrom & PIECE_MASK;
+      const colourFrom = squareFrom & COLOUR_MASK;
 
-      if ((squareFrom === ChessBoard.SQ.EMPTY) || !((pieceFrom === ChessBoard.SQ.K) && (colourFrom === colour))) continue; // If empty, or not King in specified colour, skip square
+      if ((squareFrom === EMPTY) || !((pieceFrom === KING) && (colourFrom === colour))) continue; // If empty, or not King in specified colour, skip square
       let offset;
       let to;
       let squareTo;
@@ -291,34 +294,34 @@ export default class Engine {
         to = from + offset;
         while (true) {
           squareTo = this.chessboard.board[to];
-          pieceTo = squareTo & ChessBoard.SQ.pc;
-          colourTo = squareTo & ChessBoard.SQ.b;
-          if (squareTo == ChessBoard.SQ.EMPTY) {  // skip square if empty
+          pieceTo = squareTo & PIECE_MASK;
+          colourTo = squareTo & COLOUR_MASK;
+          if (squareTo == EMPTY) {  // skip square if empty
             to += offset;
             continue;
           }
-          if ((colourTo === colour) || (squareTo === ChessBoard.SQ.EDGE)) break; // if same colour piece or edge of board, not under attack in the specified direction
+          if ((colourTo === colour) || (squareTo === EDGE)) break; // if same colour piece or edge of board, not under attack in the specified direction
           // if Rook or Queen, on same rank or file
-          if (((pieceTo === ChessBoard.SQ.R) || (pieceTo === ChessBoard.SQ.Q)) && ((offset === Engine.DIRECTIONS.N) || (offset === Engine.DIRECTIONS.S) || (offset === Engine.DIRECTIONS.E) || (offset === Engine.DIRECTIONS.W))) {
+          if (((pieceTo === ROOK) || (pieceTo === QUEEN)) && ((offset === Engine.DIRECTIONS.N) || (offset === Engine.DIRECTIONS.S) || (offset === Engine.DIRECTIONS.E) || (offset === Engine.DIRECTIONS.W))) {
             kingInCheck = true;
           }
           // if Bishop or Queen, on same diagonal
-          if (((pieceTo === ChessBoard.SQ.B) || (pieceTo === ChessBoard.SQ.Q)) && ((offset === Engine.DIRECTIONS.NE) || (offset === Engine.DIRECTIONS.SE) || (offset === Engine.DIRECTIONS.NW) || (offset === Engine.DIRECTIONS.SW))) {
+          if (((pieceTo === BISHOP) || (pieceTo === QUEEN)) && ((offset === Engine.DIRECTIONS.NE) || (offset === Engine.DIRECTIONS.SE) || (offset === Engine.DIRECTIONS.NW) || (offset === Engine.DIRECTIONS.SW))) {
             kingInCheck = true;
           }
           to += offset; // check next square
         }
       }
 
-      const pawn = colour === ChessBoard.SQ.b ? 0 : 1;
+      const pawn = colour === BLACK ? 0 : 1;
       const pawnMoves = Engine.MOVES_LIST[pawn];
       // East - pawn capture
       offset = pawnMoves[2];
       to = from + offset;
       squareTo = this.chessboard.board[to];
-      colourTo = squareTo & ChessBoard.SQ.b;
-      pieceTo = squareTo & ChessBoard.SQ.pc;
-      if ((colourTo !== colour) && (pieceTo === ChessBoard.SQ.P)) {
+      colourTo = squareTo & COLOUR_MASK;
+      pieceTo = squareTo & PIECE_MASK;
+      if ((colourTo !== colour) && (pieceTo === PAWN)) {
         kingInCheck = true;
         return kingInCheck;
       }
@@ -326,22 +329,22 @@ export default class Engine {
       offset = pawnMoves[3];
       to = from + offset;
       squareTo = this.chessboard.board[to];
-      colourTo = squareTo & ChessBoard.SQ.b;
-      pieceTo = squareTo & ChessBoard.SQ.pc;
-      if ((colourTo !== colour) && (pieceTo === ChessBoard.SQ.P)) {
+      colourTo = squareTo & COLOUR_MASK;
+      pieceTo = squareTo & PIECE_MASK;
+      if ((colourTo !== colour) && (pieceTo === PAWN)) {
         kingInCheck = true;
         return kingInCheck;
       }
 
       //KNIGHT moves
-      moves = Engine.MOVES_LIST[ChessBoard.SQ.N];
+      moves = Engine.MOVES_LIST[KNIGHT];
       for (let j = 0; j < moves.length; j++) {
         offset = moves[j];
         to = from + offset;
         squareTo = this.chessboard.board[to];
-        colourTo = squareTo & ChessBoard.SQ.b;
-        pieceTo = squareTo & ChessBoard.SQ.pc;
-        if ((colourTo !== colour) && (pieceTo === ChessBoard.SQ.N)) {
+        colourTo = squareTo & COLOUR_MASK;
+        pieceTo = squareTo & PIECE_MASK;
+        if ((colourTo !== colour) && (pieceTo === KNIGHT)) {
           kingInCheck = true;
           return kingInCheck;
         }
@@ -355,34 +358,34 @@ export default class Engine {
    * EVALUATE/SCORE POSITION
    * returns a score *relative* to the current turn (i.e. if white is winning, but it's black's turn, a -ve will be returned)
    */
-  SCORES = {
-    [ChessBoard.SQ.P]: 1,
-    [ChessBoard.SQ.N]: 2.8,
-    [ChessBoard.SQ.B]: 3,
-    [ChessBoard.SQ.R]: 5,
-    [ChessBoard.SQ.Q]: 8.5,
-    [ChessBoard.SQ.K]: 99999,
+  SCORES: {[key: number]:number} = {
+    [PAWN]: 1,
+    [KNIGHT]: 2.8,
+    [BISHOP]: 3,
+    [ROOK]: 5,
+    [QUEEN]: 8.5,
+    [KING]: 99999,
   };
   evaluatePosition() {
     const wOffset = 1;
     const bOffset = -1;
-    const toMove = this.chessboard.turn === ChessBoard.SQ.w ? wOffset : bOffset;
+    const toMove = this.chessboard.turn === WHITE ? wOffset : bOffset;
 
-    const materialScores = {
-      [ChessBoard.SQ.P]: 0,
-      [ChessBoard.SQ.N]: 0,
-      [ChessBoard.SQ.B]: 0,
-      [ChessBoard.SQ.R]: 0,
-      [ChessBoard.SQ.Q]: 0,
-      [ChessBoard.SQ.K]: 0,
+    const materialScores: {[key:number] : number} = {
+      [PAWN]: 0,
+      [KNIGHT]: 0,
+      [BISHOP]: 0,
+      [ROOK]: 0,
+      [QUEEN]: 0,
+      [KING]: 0,
     };
     for (let i = 0; i < 64; i++) {
-      const from = ChessBoard.mailbox64[i];
+      const from = MAILBOX64[i];
       const square = this.chessboard.board[from];
-      const piece = square & ChessBoard.SQ.pc;
-      const colour = square & ChessBoard.SQ.b;
-      if (piece === ChessBoard.SQ.EMPTY) continue;
-      const colourOffset = colour === ChessBoard.SQ.w ? wOffset : bOffset;
+      const piece = square & PIECE_MASK;
+      const colour = square & COLOUR_MASK;
+      if (piece === EMPTY) continue;
+      const colourOffset = colour === WHITE ? wOffset : bOffset;
       materialScores[piece] += colourOffset;
     }
 
@@ -414,9 +417,9 @@ export default class Engine {
     if (enpassant === Engine.MV.EN_PASSANT) {
       // remove pawn necessary next to enpassant square (+1 row for white capturing, -1 row for black capturing)
       if (this.chessboard.enpassant >= 41 && this.chessboard.enpassant <= 48) {
-        this.chessboard.board[to + 10] = ChessBoard.SQ.EMPTY;
+        this.chessboard.board[to + 10] = EMPTY;
       } else if (this.chessboard.enpassant >= 61 && this.chessboard.enpassant <= 68) {
-        this.chessboard.board[to - 10] = ChessBoard.SQ.EMPTY;
+        this.chessboard.board[to - 10] = EMPTY;
       }
     }
 
@@ -427,10 +430,10 @@ export default class Engine {
       this.chessboard.enpassant = -1;
     }
 
-    const pieceFrom = this.chessboard.board[from] & ChessBoard.SQ.pc;
+    const pieceFrom = this.chessboard.board[from] & PIECE_MASK;
 
     // UPDATE halfmove clock
-    if ((pieceFrom === ChessBoard.SQ.P) || capture !== 0) {
+    if ((pieceFrom === PAWN) || capture !== 0) {
       // if pawn move or capture, reset to 0
       this.chessboard.halfmove = 0;
     } else {
@@ -439,14 +442,14 @@ export default class Engine {
     }
 
     // UPDATE fullmove clock, if black is making turn
-    if (this.chessboard.turn === ChessBoard.SQ.b) this.chessboard.fullmove += 1;
+    if (this.chessboard.turn === BLACK) this.chessboard.fullmove += 1;
 
     // MOVE PIECE (and set flag to 'has moved', and restore piece colour)
-    this.chessboard.board[to] = this.chessboard.board[from] | ChessBoard.SQ.m | this.chessboard.turn;
+    this.chessboard.board[to] = this.chessboard.board[from] | HAS_MOVED | this.chessboard.turn;
 
     // IF ROOK, update relevant castle rights
-    if (pieceFrom === ChessBoard.SQ.R) {
-      if (this.chessboard.turn === ChessBoard.SQ.w) {
+    if (pieceFrom === ROOK) {
+      if (this.chessboard.turn === WHITE) {
         if (from === 98) this.chessboard.castle[0] = 0;
         if (from === 91) this.chessboard.castle[1] = 0;
       } else {
@@ -456,11 +459,11 @@ export default class Engine {
     }
 
     // IF KING, also remove 'can castle' flag
-    if (pieceFrom === ChessBoard.SQ.K) {
-      this.chessboard.board[to] &= ~ChessBoard.SQ.c;
+    if (pieceFrom === KING) {
+      this.chessboard.board[to] &= ~CAN_CASTLE;
 
       // and update stored castling rights
-      if (this.chessboard.turn === ChessBoard.SQ.w) {
+      if (this.chessboard.turn === WHITE) {
         this.chessboard.castle[0] = 0;
         this.chessboard.castle[1] = 0;
       } else {
@@ -471,24 +474,24 @@ export default class Engine {
 
     // MOVE rook if castle
     if (castle === Engine.MV.KS_CASTLE) {
-      this.chessboard.board[from + 3] = ChessBoard.SQ.EMPTY;
-      this.chessboard.board[from + 1] = ChessBoard.SQ.R | this.chessboard.turn | ChessBoard.SQ.m;
+      this.chessboard.board[from + 3] = EMPTY;
+      this.chessboard.board[from + 1] = ROOK | this.chessboard.turn | HAS_MOVED;
     } else if (castle === Engine.MV.QS_CASTLE) {
-      this.chessboard.board[from - 4] = ChessBoard.SQ.EMPTY;
-      this.chessboard.board[from - 1] = ChessBoard.SQ.R | this.chessboard.turn | ChessBoard.SQ.m;
+      this.chessboard.board[from - 4] = EMPTY;
+      this.chessboard.board[from - 1] = ROOK | this.chessboard.turn | HAS_MOVED;
     }
 
     // PROMOTE to new piece if possible
     if (promotion !== 0) {
-      this.chessboard.board[to] &= ~ChessBoard.SQ.pc;
+      this.chessboard.board[to] &= ~PIECE_MASK;
       this.chessboard.board[to] &= promotion;
     }
 
     // CLEAR the square from
-    this.chessboard.board[from] = ChessBoard.SQ.EMPTY;
+    this.chessboard.board[from] = EMPTY;
 
     // CHANGE turn
-    this.chessboard.turn = this.chessboard.turn === ChessBoard.SQ.w ? ChessBoard.SQ.b : ChessBoard.SQ.w;
+    this.chessboard.turn = this.chessboard.turn === WHITE ? BLACK : WHITE;
 
     // PUSH previous board state to stack
     this.history.push(boardState);
@@ -518,33 +521,33 @@ export default class Engine {
       } else if (this.chessboard.enpassant >= 61 && this.chessboard.enpassant <= 68) {
         this.chessboard.board[to - 10] = capture;
       }
-      this.chessboard.board[to] = ChessBoard.SQ.EMPTY;
+      this.chessboard.board[to] = EMPTY;
     } else {
       this.chessboard.board[to] = capture;
     }
 
     // MOVE rook and king back if castled
     if (castle === Engine.MV.KS_CASTLE) {
-      this.chessboard.board[from + 3] = this.chessboard.board[from + 1] & ~ChessBoard.SQ.m; // return rook to position
-      this.chessboard.board[from] |= ChessBoard.SQ.c;  // return king state to 'can castle'
-      this.chessboard.board[from] &= ~ChessBoard.SQ.m;  // return king state to 'unmoved'
-      this.chessboard.board[to] = ChessBoard.SQ.EMPTY; 
-      this.chessboard.board[from + 1] = ChessBoard.SQ.EMPTY;
+      this.chessboard.board[from + 3] = this.chessboard.board[from + 1] & ~HAS_MOVED; // return rook to position
+      this.chessboard.board[from] |= CAN_CASTLE;  // return king state to 'can castle'
+      this.chessboard.board[from] &= ~HAS_MOVED;  // return king state to 'unmoved'
+      this.chessboard.board[to] = EMPTY; 
+      this.chessboard.board[from + 1] = EMPTY;
     } else if (castle === Engine.MV.QS_CASTLE) {
-      this.chessboard.board[from - 4] = this.chessboard.board[from - 1] & ~ChessBoard.SQ.m; // return rook to position
-      this.chessboard.board[from] |= ChessBoard.SQ.c;  // return king state to 'can castle'
-      this.chessboard.board[from] &= ~ChessBoard.SQ.m;  // return king state to 'unmoved'
-      this.chessboard.board[to] = ChessBoard.SQ.EMPTY; 
-      this.chessboard.board[from - 1] = ChessBoard.SQ.EMPTY; 
+      this.chessboard.board[from - 4] = this.chessboard.board[from - 1] & ~HAS_MOVED; // return rook to position
+      this.chessboard.board[from] |= CAN_CASTLE;  // return king state to 'can castle'
+      this.chessboard.board[from] &= ~HAS_MOVED;  // return king state to 'unmoved'
+      this.chessboard.board[to] = EMPTY; 
+      this.chessboard.board[from - 1] = EMPTY; 
     }
 
     // 3. if promotion, set 'from' back to pawn (& ~pc | P)
     if (promotion !== 0) {
-      this.chessboard.board[from] &= ~ChessBoard.SQ.pc;
-      this.chessboard.board[from] |= ChessBoard.SQ.P;
+      this.chessboard.board[from] &= ~PIECE_MASK;
+      this.chessboard.board[from] |= PAWN;
     }
     // 4. flip turn
-    this.chessboard.turn = this.chessboard.turn === ChessBoard.SQ.w ? ChessBoard.SQ.b : ChessBoard.SQ.w;
+    this.chessboard.turn = this.chessboard.turn === WHITE ? BLACK : WHITE;
   }
 
   /**
@@ -564,7 +567,6 @@ export default class Engine {
         nodes += this.perft(depth - 1);
       }
       this.unmakeMove();
-      console.log(nodes);
     }
 
     return nodes;
@@ -573,14 +575,11 @@ export default class Engine {
 }
 
 // const engine = new Engine();
-// const perft = engine.perft(2);
+// const perft = engine.perft(1);
 // console.log(perft);
 
 const engine = new Engine();
-// engine.chessboard.printBoard();
-
+engine.chessboard.printBoard();
 const moves = engine.generatePseudoMoves();
-const move = moves[0];
-console.log(Engine.convertMoveToNotation(move));
-// engine.makeMove(move);
-// engine.chessboard.printBoard();
+engine.makeMove(moves[0]);
+engine.chessboard.printBoard();

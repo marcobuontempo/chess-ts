@@ -1,4 +1,3 @@
-import ChessBoard from "../src/board";
 import Engine from "../src/engine";
 
 

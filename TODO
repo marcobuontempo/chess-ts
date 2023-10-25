@@ -2,3 +2,8 @@
 2. move all constants to separate file (i.e KING instead of SQ.K)
 3. complete convertMoveToNotation() function
 4. fix perft() function. debug using moveNotations above ^^
+5. create engine.tests for king castling (king can_castle flag, then can castle. king castling through attacked squares, cannot castle)
+6. don't use has_moved flag king or rook. use can_castle only!
+7. create engine.tests for enpassant moves
+8. validate move -> check whether king squares are attacked during castle
+9. EDGE validation for engine.tests

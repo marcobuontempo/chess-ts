@@ -29,6 +29,13 @@ export default class ChessBoard {
   }
 
   /**
+   * convert number to chess notation (i.e. 65 => e4)
+   */
+  static numberToCoordinate(square: number) {
+    return String.fromCharCode(square%10 + 96) + (10 - Math.floor(square / 10));
+  }
+
+  /**
    * converts FEN string into data values
    */
   private static parseFEN(fen: string) {
@@ -186,6 +193,7 @@ export default class ChessBoard {
   static decodeSquare(encodedSquare: number) {
     const pieceCh = (encodedSquare & PIECE_MASK) | (encodedSquare & COLOUR_MASK);
     const piece = SQUARE_ALPHAS[pieceCh];
+    console.log("AAA", pieceCh.toString(2));
     return {
       piece: piece === "." ? "EMPTY" : piece,
       hasMoved: (encodedSquare & HAS_MOVED) > 0,

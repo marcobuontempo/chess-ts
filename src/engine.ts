@@ -37,33 +37,6 @@ export default class Engine {
   }
 
   /**
-   * CONVERTS A MOVE TO *BASIC* CHESS NOTATION
-   */
-  static convertMoveToNotation(move: number, squareFrom: number) {
-    let notation = "";
-
-    const { castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
-    
-    if (castle === QS_CASTLE) {
-      return "O-O-O";
-    }
-    if (castle === KS_CASTLE) {
-      return "O-O";
-    }
-    
-    const { piece: pieceFrom } = ChessBoard.decodeSquare(squareFrom);
-
-    // pawn push -> 'e4'
-    // pawn capture -> 'exd4'
-    // piece move -> 'Nf6'
-    // piece capture -> 'Nxf6'
-    // check -> 'Qc8+'
-    // checkmate -> 'Qc8#'
-
-    return notation;
-  }
-
-  /**
    * PSEUDO-LEGAL MOVE GENERATOR
    */
   generatePseudoMoves() {
@@ -495,6 +468,8 @@ export default class Engine {
       if(moves[i] === 0) break;
       this.makeMove(moves[i]);
       if (!this.kingIsInCheck(this.chessboard.turn)) {
+        const { from, to } = Engine.decodeMoveData(moves[i]);
+        console.log(ChessBoard.numberToCoordinate(from), ChessBoard.numberToCoordinate(to));
         nodes += this.perft(depth - 1);
       }
       this.unmakeMove();
@@ -510,7 +485,7 @@ export default class Engine {
 // console.log(perft);
 
 const engine = new Engine();
-engine.chessboard.printBoard();
-const moves = engine.generatePseudoMoves();
-engine.makeMove(moves[0]);
-engine.chessboard.printBoard();
+// engine.chessboard.printBoard();
+engine.perft(2);
+// engine.makeMove(moves[0]);
+// engine.chessboard.printBoard();

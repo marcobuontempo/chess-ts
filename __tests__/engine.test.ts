@@ -1,5 +1,6 @@
 import { EMPTY } from "../src/board-constants";
 import Engine from "../src/engine";
+import { NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, SQUARE_TO, SQUARE_FROM, PIECE_PROMOTE, PIECE_CAPTURE, CASTLE, KS_CASTLE, QS_CASTLE, DOUBLE_PUSH, EN_PASSANT, MOVES_LIST, SLIDERS } from "../src/engine-constants";
 import { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, CAN_CASTLE, HAS_MOVED, WHITE, BLACK } from "../src/piece-constants";
 
 describe("Encode Move Data", () => {
@@ -53,7 +54,7 @@ describe("Decode Move Data", () => {
     expect(Engine.decodeMoveData(0b0001_0000_0000_0000_0001_1001_0001_0101)).toStrictEqual({
       enpassant: 0,
       doublePush: 0,
-      castle: Engine.MV.QS_CASTLE,
+      castle: QS_CASTLE,
       capture: 0,
       promotion: 0,
       from: 25,
@@ -75,7 +76,7 @@ describe("Decode Move Data", () => {
     expect(Engine.decodeMoveData(0b0000_1000_0000_0000_0101_1111_0110_0010)).toStrictEqual({
       enpassant: 0,
       doublePush: 0,
-      castle: Engine.MV.KS_CASTLE,
+      castle: KS_CASTLE,
       capture: 0,
       promotion: 0,
       from: 95,
@@ -85,7 +86,7 @@ describe("Decode Move Data", () => {
   test("6. EnPassant[No], DoublePush[Yes], Castle[No], Capture[No], Promotion[No], From[35], To[55]", () => {
     expect(Engine.decodeMoveData(0b0010_0000_0000_0000_0010_0011_0011_0111)).toStrictEqual({
       enpassant: 0,
-      doublePush: Engine.MV.DOUBLE_PUSH,
+      doublePush: DOUBLE_PUSH,
       castle: 0,
       capture: 0,
       promotion: 0,
@@ -95,7 +96,7 @@ describe("Decode Move Data", () => {
   });
   test("7. EnPassant[Yes], DoublePush[No], Castle[No], Capture[Black Pawn Moved], Promotion[No], From[54], To[43]", () => {
     expect(Engine.decodeMoveData(0b0100_0010_1000_1000_0011_0110_0010_1011)).toStrictEqual({
-      enpassant: Engine.MV.EN_PASSANT,
+      enpassant: EN_PASSANT,
       doublePush: 0,
       castle: 0,
       capture: PAWN | BLACK | HAS_MOVED,

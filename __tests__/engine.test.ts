@@ -268,7 +268,7 @@ describe("Make Move", () => {
   });
   test("3. Double Pawn Push", () => {
     const engine = new Engine("r3k3/8/8/8/8/8/P7/R3k2R w KQq - 20 80");
-    const move = Engine.encodeMoveData(0, 1, 0, 0, 0, 81, 61);
+    const move = Engine.encodeMoveData(0, DOUBLE_PUSH, 0, 0, 0, 81, 61);
     engine.makeMove(move);
     expect(engine.chessboard.board[81]).toStrictEqual(EMPTY);
     expect(engine.chessboard.board[61]).toStrictEqual(PAWN | WHITE | HAS_MOVED);
@@ -280,7 +280,7 @@ describe("Make Move", () => {
   });
   test("4. Queenside Castle", () => {
     const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b Kkq - 20 35");
-    const move = Engine.encodeMoveData(0, 0, 2, 0, 0, 25, 23);
+    const move = Engine.encodeMoveData(0, 0, QS_CASTLE, 0, 0, 25, 23);
     engine.makeMove(move);
     // King's Square
     expect(engine.chessboard.board[25]).toStrictEqual(EMPTY);
@@ -297,7 +297,7 @@ describe("Make Move", () => {
   });
   test("5. Kingside Castle", () => {
     const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Kkq - 20 35");
-    const move = Engine.encodeMoveData(0, 0, 1, 0, 0, 95, 97);
+    const move = Engine.encodeMoveData(0, 0, KS_CASTLE, 0, 0, 95, 97);
     engine.makeMove(move);
     // King's Square
     expect(engine.chessboard.board[95]).toStrictEqual(EMPTY);
@@ -330,7 +330,7 @@ describe("Make Move", () => {
   test("7. En Passant", () => {
     const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
     const pawnCapture = engine.chessboard.board[44];
-    const move = Engine.encodeMoveData(1, 0, 0, pawnCapture, 0, 55, 44);
+    const move = Engine.encodeMoveData(EN_PASSANT, 0, 0, pawnCapture, 0, 55, 44);
     engine.makeMove(move);
     // Square Updates
     expect(engine.chessboard.board[54]).toStrictEqual(EMPTY);
@@ -393,7 +393,7 @@ describe("Unmake Move", () => {
 
   test("3. Double Pawn Push", () => {
     const engine = new Engine("r3k3/8/8/8/8/8/P7/R3k2R w KQq - 20 80");
-    const move = Engine.encodeMoveData(0, 1, 0, 0, 0, 81, 61);
+    const move = Engine.encodeMoveData(0, DOUBLE_PUSH, 0, 0, 0, 81, 61);
     engine.makeMove(move);
     engine.unmakeMove();
 
@@ -408,7 +408,7 @@ describe("Unmake Move", () => {
 
   test("4. Queenside Castle", () => {
     const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b Kkq - 20 35");
-    const move = Engine.encodeMoveData(0, 0, 2, 0, 0, 25, 23);
+    const move = Engine.encodeMoveData(0, 0, QS_CASTLE, 0, 0, 25, 23);
     engine.makeMove(move);
     engine.unmakeMove();
 
@@ -430,7 +430,7 @@ describe("Unmake Move", () => {
 
   test("5. Kingside Castle", () => {
     const engine = new Engine("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Kkq - 20 35");
-    const move = Engine.encodeMoveData(0, 0, 1, 0, 0, 95, 97);
+    const move = Engine.encodeMoveData(0, 0, KS_CASTLE, 0, 0, 95, 97);
     engine.makeMove(move);
     engine.unmakeMove();
 
@@ -470,7 +470,7 @@ describe("Unmake Move", () => {
   test("7. En Passant", () => {
     const engine = new Engine("r1bkqbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBKQBNR w Kk d6 0 99");
     const pawnCapture = engine.chessboard.board[44];
-    const move = Engine.encodeMoveData(1, 0, 0, pawnCapture, 0, 55, 44);
+    const move = Engine.encodeMoveData(EN_PASSANT, 0, 0, pawnCapture, 0, 55, 44);
     engine.makeMove(move);
     engine.unmakeMove();
     // Restored Squares
@@ -489,67 +489,61 @@ describe("Unmake Move", () => {
 });
 
 
-// describe("Generate Moves", () => {
-  // describe("Pawn", () => {
-  //   test("1. Single Push - White", () => {
-  //     const engine = new Engine("8/8/8/8/3P4/8/8/8 w - - 0 1");
-  //     const moves = engine.generatePseudoMoves();
+describe("Generate Pseudo Moves", () => {
+  describe("White Pawn", () => {
+    test("1. Single Push", () => {
+      const engine = new Engine("8/8/8/8/3P4/8/8/8 w - - 0 1");
+      const moves = engine.generatePseudoMoves();
 
-  //     expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
-  //     expect(moves[0]).toStrictEqual(16438);    // encoded single pawn push
-  //     expect(moves[1]).toStrictEqual(0);        // the index for when no more moves are available
-  //   });
-  //   test("2. Double Push - White", () => {
-  //     const engine = new Engine("8/8/8/8/8/8/P/8 w - - 0 1");
-  //     const moves = engine.generatePseudoMoves();
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[0]).toStrictEqual(16438);    // encoded single pawn push
+      expect(moves[1]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Double Push", () => {
+      const engine = new Engine("8/8/8/8/8/8/P/8 w - - 0 1");
+      const moves = engine.generatePseudoMoves();
 
-  //     expect(moves.length).toStrictEqual(218);
-  //     expect(moves[0]).toStrictEqual(20807);
-  //     expect(moves[1]).toStrictEqual(536891709);
-  //     expect(moves[2]).toStrictEqual(0);
-  //   });
-  //   test("3. West Capture - White", () => {
-  //     const engine = new Engine("8/8/8/8/8/1pp5/1P7/8 w - - 0 1");
-  //     const moves = engine.generatePseudoMoves();
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(20807);
+      expect(moves[1]).toStrictEqual(536891709);
+      expect(moves[2]).toStrictEqual(0);
+    });
+    test("3. East Capture", () => {
+      const engine = new Engine("8/8/8/8/8/1pp5/1P7/8 w - - 0 1");
+      const moves = engine.generatePseudoMoves();
 
-  //     expect(moves.length).toStrictEqual(218);
-  //     expect(moves[0]).toStrictEqual(545353);
-  //     expect(moves[1]).toStrictEqual(0);  
-  //   });
-  //   test("4. East Capture - White", () => {
-  //     const engine = new Engine("8/8/8/8/p7/1P7/8/8 w - - 0 1");
-  //     const moves = engine.generatePseudoMoves();
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(42488393);
+      expect(moves[1]).toStrictEqual(0);  
+    });
+    test("4. West Capture", () => {
+      const engine = new Engine("8/8/8/8/p7/1P7/8/8 w - - 0 1");
+      const moves = engine.generatePseudoMoves();
 
-  //     expect(moves.length).toStrictEqual(218);
-  //     expect(moves[0]).toStrictEqual(18494);
-  //     expect(moves[1]).toStrictEqual(542781);  
-  //     expect(moves[2]).toStrictEqual(0);  
-  //   });
-  //   test("4. En Passant - White", () => {
-  //     const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
-  //     const moves = engine.generatePseudoMoves();
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(18494);
+      expect(moves[1]).toStrictEqual(42485821);  
+      expect(moves[2]).toStrictEqual(0);
+    });
+    test("4. En Passant", () => {
+      const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
+      const moves = engine.generatePseudoMoves();
 
-  //     expect(moves.length).toStrictEqual(218);
-  //     expect(moves[0]).toStrictEqual(14125);
-  //     expect(moves[1]).toStrictEqual(42481452);
-  //     expect(moves[2]).toStrictEqual(0);
-  //   });
-    // test("5. Promotion - White", () => {
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(14125);
+      expect(moves[1]).toStrictEqual(1116223276);
+      expect(moves[2]).toStrictEqual(0);
+    });
+    // test("5. Promotion", () => {
     //   const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
     //   const moves = engine.generatePseudoMoves();
 
     //   expect(moves.length).toStrictEqual(218);
-    //   expect(moves[0]).toStrictEqual(18494);
-    //   expect(moves[1]).toStrictEqual(542781);  
+    //   expect(moves).toContain(18494); // knight promotion
+    //   expect(moves).toContain(18494); // bishop promotion
+    //   expect(moves).toContain(18494); // rook promotion
+    //   expect(moves).toContain(18494); // queen promotion
     //   expect(moves[2]).toStrictEqual(0);  
     // });
-    // test("6. Single Push - Black", () => {
-    //   const engine = new Engine("8/8/8/3p4/8/8/8/8 b - - 0 1");
-    //   const moves = engine.generatePseudoMoves();
-
-    //   expect(moves.length).toStrictEqual(218);
-    //   expect(moves[0]).toStrictEqual(13888);
-    //   expect(moves[1]).toStrictEqual(0);  
-    // });
-//   });
-// });
+  });
+});

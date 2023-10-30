@@ -251,7 +251,7 @@ export default class ChessBoard {
     process.stdout.write(" | |\n+-----------------------------+\n");
     process.stdout.write(`Turn: ${this.turn===0 ? "w" : "b"}\n`);
     process.stdout.write(`Castle: ${printCastle}\n`);
-    process.stdout.write(`En Passant Square: ${this.enpassant===-1 ? "-" : this.enpassant}\n`);
+    process.stdout.write(`En Passant Square: ${this.enpassant===-1 ? "-" : ChessBoard.numberToCoordinate(this.enpassant)}\n`);
     process.stdout.write(`Halfmove: ${this.halfmove}\n`);
     process.stdout.write(`Fullmove: ${this.fullmove}\n`);
     process.stdout.write("+-----------------------------+\n");

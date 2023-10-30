@@ -96,7 +96,7 @@ export default class Engine {
           squareTo = this.chessboard.board[to];
           const firstSquare = this.chessboard.board[from + MOVES_LIST[pieceFrom][0]];  // first square in double push
           if ((squareTo === EMPTY) && (firstSquare === EMPTY)) {  // check both squares are empty
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 1, 0, 0, 0, from, to);
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, DOUBLE_PUSH, 0, 0, 0, from, to);
             pmIdx++;
           }
         }
@@ -108,15 +108,16 @@ export default class Engine {
           squareTo = this.chessboard.board[to];
           if (squareTo === EDGE) continue;
           // enpassant
-          if ((squareTo !== EMPTY) && (to === this.chessboard.enpassant)) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(1, 0, 0, squareTo & PIECE_MASK, 0, from, to);
+          if ((squareTo === EMPTY) && (to === this.chessboard.enpassant)) {
+            const epPawn = this.chessboard.board[to + (-1 * MOVES_LIST[pieceFrom][0])];
+            pseudoMoves[pmIdx] = Engine.encodeMoveData(EN_PASSANT, 0, 0, epPawn, 0, from, to);
             pmIdx++;
             continue;
           }
           // normal capture
           if ((squareTo !== EMPTY)) {
             if (to >= 31 && to <= 88) { // if not last rank
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, squareTo & PIECE_MASK, 0, from, to);
+              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, squareTo, 0, from, to);
               pmIdx++;
             } else {
               // else, final rank, so promote
@@ -262,7 +263,7 @@ export default class Engine {
    * EVALUATE/SCORE POSITION
    * returns a score *relative* to the current turn (i.e. if white is winning, but it's black's turn, a -ve will be returned)
    */
-  SCORES: {[key: number]:number} = {
+  private SCORES: {[key: number]:number} = {
     [PAWN]: 1,
     [KNIGHT]: 2.8,
     [BISHOP]: 3,
@@ -485,18 +486,13 @@ export default class Engine {
 // console.log(perft);
 
 // const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
-// engine.chessboard.printBoard();
+// console.log(engine.chessboard.board[61]);
 // engine.makeMove(42481452);
 // engine.chessboard.printBoard();
 // const moves = engine.generatePseudoMoves();
-// console.log(Engine.encodeMoveData(EN_PASSANT,0,0,81,0,55,44));
 
 // for (let i=0; i<moves.length; i++) {
 //   const move = moves[i];
 //   if(move === 0) break;
 //   console.log(move, Engine.decodeMoveData(move));
 // }
-
-// engine.chessboard.printBoard();
-// engine.perft(2);
-// engine.chessboard.printBoard();

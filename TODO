@@ -1,4 +1,8 @@
-4. fix perft() function. PAWN IS MOVING DIAGONAL WHEN CAPTURE IS UNAVAILABLE !!
+
+- WRITE UNIT TESTS FOR GENERATEMOVES() FOR EVERY PIECE. E.G. (ONLY PAWN ON BOARD, PUSH, DOUBLEPUSH) (PAWN AND PIECE, CAPTURE)
+- DEBUG WHY BLACK PAWN IS GENERATING ALL MOVES (DOUBLE + CAPTURE, WHEN NOT AVAILABLE), BUT WHITE PAWN ISN'T
+
+4. fix perft() function. generateMoves() => BLACK PAWN IS REGISTERING ALL MOVES INSTEAD OF VALID MOVES (I.E. DIAGONAL AND DOUBLEPUSH ALWAYS GENERATING WHEN NOT ACTUALLY AVAILABLE)
 1. makeMove, use meaningful constant values instead of hardcoding numbers
 5. create engine.tests for king castling (king can_castle flag, then can castle. king castling through attacked squares, cannot castle)
 7. create engine.tests for enpassant moves

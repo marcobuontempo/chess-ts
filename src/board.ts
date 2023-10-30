@@ -193,7 +193,6 @@ export default class ChessBoard {
   static decodeSquare(encodedSquare: number) {
     const pieceCh = (encodedSquare & PIECE_MASK) | (encodedSquare & COLOUR_MASK);
     const piece = SQUARE_ALPHAS[pieceCh];
-    console.log("AAA", pieceCh.toString(2));
     return {
       piece: piece === "." ? "EMPTY" : piece,
       hasMoved: (encodedSquare & HAS_MOVED) > 0,

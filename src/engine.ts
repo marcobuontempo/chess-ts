@@ -16,7 +16,7 @@ export default class Engine {
    * ENCODES THE MOVE INFORMATION ENCODED INTO A 32UInt
    */
   static encodeMoveData(enpassant: number, doublepush: number, castle: number, capture: number, promotion: number, from: number, to: number) {
-    return (enpassant << 30) | (doublepush << 29) | (castle << 27) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
+    return (enpassant) | (doublepush) | (castle) | (capture << 19) | (promotion << 16) | (from << 8) | (to);
   }
 
   /**
@@ -484,8 +484,19 @@ export default class Engine {
 // const perft = engine.perft(1);
 // console.log(perft);
 
-const engine = new Engine();
+// const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
 // engine.chessboard.printBoard();
-engine.perft(2);
-// engine.makeMove(moves[0]);
+// engine.makeMove(42481452);
+// engine.chessboard.printBoard();
+// const moves = engine.generatePseudoMoves();
+// console.log(Engine.encodeMoveData(EN_PASSANT,0,0,81,0,55,44));
+
+// for (let i=0; i<moves.length; i++) {
+//   const move = moves[i];
+//   if(move === 0) break;
+//   console.log(move, Engine.decodeMoveData(move));
+// }
+
+// engine.chessboard.printBoard();
+// engine.perft(2);
 // engine.chessboard.printBoard();

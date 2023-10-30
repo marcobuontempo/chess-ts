@@ -486,6 +486,7 @@ export default class Engine {
 // console.log(perft);
 
 // const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
+console.log(Engine.encodeMoveData(0,0,0,0,KNIGHT,31,21), Engine.encodeMoveData(0,0,0,0,BISHOP,31,21), Engine.encodeMoveData(0,0,0,0,ROOK,31,21), Engine.encodeMoveData(0,0,0,0,QUEEN,31,21));
 // console.log(engine.chessboard.board[61]);
 // engine.makeMove(42481452);
 // engine.chessboard.printBoard();

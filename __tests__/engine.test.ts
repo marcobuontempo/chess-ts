@@ -534,16 +534,16 @@ describe("Generate Pseudo Moves", () => {
       expect(moves[1]).toStrictEqual(1116223276);
       expect(moves[2]).toStrictEqual(0);
     });
-    // test("5. Promotion", () => {
-    //   const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
-    //   const moves = engine.generatePseudoMoves();
+    test("5. Promotion", () => {
+      const engine = new Engine("8/P7/8/8/8/8/8/8 w - - 0 1");
+      const moves = engine.generatePseudoMoves();
 
-    //   expect(moves.length).toStrictEqual(218);
-    //   expect(moves).toContain(18494); // knight promotion
-    //   expect(moves).toContain(18494); // bishop promotion
-    //   expect(moves).toContain(18494); // rook promotion
-    //   expect(moves).toContain(18494); // queen promotion
-    //   expect(moves[2]).toStrictEqual(0);  
-    // });
+      expect(moves.length).toStrictEqual(218);
+      expect(moves).toContain(139029); // knight promotion
+      expect(moves).toContain(204565); // bishop promotion
+      expect(moves).toContain(270101); // rook promotion
+      expect(moves).toContain(335637); // queen promotion
+      expect(moves[4]).toStrictEqual(0);  
+    });
   });
 });

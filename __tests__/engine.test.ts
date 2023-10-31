@@ -500,7 +500,7 @@ describe("Generate Pseudo Moves", () => {
       expect(moves[1]).toStrictEqual(0);        // the index for when no more moves are available
     });
     test("2. Double Push", () => {
-      const engine = new Engine("8/8/8/8/8/8/P/8 w - - 0 1");
+      const engine = new Engine("8/8/8/8/8/8/P7/8 w - - 0 1");
       const moves = engine.generatePseudoMoves();
 
       expect(moves.length).toStrictEqual(218);
@@ -517,7 +517,7 @@ describe("Generate Pseudo Moves", () => {
       expect(moves[1]).toStrictEqual(0);  
     });
     test("4. West Capture", () => {
-      const engine = new Engine("8/8/8/8/p7/1P7/8/8 w - - 0 1");
+      const engine = new Engine("8/8/8/8/p7/1P6/8/8 w - - 0 1");
       const moves = engine.generatePseudoMoves();
 
       expect(moves.length).toStrictEqual(218);
@@ -543,6 +543,63 @@ describe("Generate Pseudo Moves", () => {
       expect(moves).toContain(204565); // bishop promotion
       expect(moves).toContain(270101); // rook promotion
       expect(moves).toContain(335637); // queen promotion
+      expect(moves[4]).toStrictEqual(0);  
+    });
+  });
+
+  describe("Black Pawn", () => {
+    test("1. Single Push", () => {
+      const engine = new Engine("8/8/8/3p4/8/8/8/8 b - - 0 1");
+      const moves = engine.generatePseudoMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[0]).toStrictEqual(13888);    // encoded single pawn push
+      expect(moves[1]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Double Push", () => {
+      const engine = new Engine("8/p7/8/8/8/8/8/8 b - - 0 1");
+      const moves = engine.generatePseudoMoves();
+
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(7977);
+      expect(moves[1]).toStrictEqual(536878899);
+      expect(moves[2]).toStrictEqual(0);
+    });
+    test("3. East Capture", () => {
+      const engine = new Engine("8/1p6/1PP5/8/8/8/8/8 b - - 0 1");
+      const moves = engine.generatePseudoMoves();
+
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(34086955);
+      expect(moves[1]).toStrictEqual(0);  
+    });
+    test("4. West Capture", () => {
+      const engine = new Engine("8/8/1p6/P7/8/8/8/8 b - - 0 1");
+      const moves = engine.generatePseudoMoves();
+
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(10804);
+      expect(moves[1]).toStrictEqual(34089523);  
+      expect(moves[2]).toStrictEqual(0);
+    });
+    test("4. En Passant", () => {
+      const engine = new Engine("8/8/8/8/3pP3/8/8/8 b - e3 0 1");
+      const moves = engine.generatePseudoMoves();
+
+      expect(moves.length).toStrictEqual(218);
+      expect(moves[0]).toStrictEqual(16458);
+      expect(moves[1]).toStrictEqual(1107837003);
+      expect(moves[2]).toStrictEqual(0);
+    });
+    test("5. Promotion", () => {
+      const engine = new Engine("8/8/8/8/8/8/7p/8 b - - 0 1");
+      const moves = engine.generatePseudoMoves();
+
+      expect(moves.length).toStrictEqual(218);
+      expect(moves).toContain(153698); // knight promotion
+      expect(moves).toContain(219234); // bishop promotion
+      expect(moves).toContain(284770); // rook promotion
+      expect(moves).toContain(350306); // queen promotion
       expect(moves[4]).toStrictEqual(0);  
     });
   });

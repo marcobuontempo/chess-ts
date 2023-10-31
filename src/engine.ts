@@ -41,14 +41,15 @@ export default class Engine {
    */
   generatePseudoMoves() {
     const pseudoMoves = new Uint32Array(218); // to store each move's data. can only be <= 218 moves in a chess position. set array size for better performance vs .push()
-    let pmIdx = 0; // current index to store pseudo move
+    let pseudoMoveIdx = 0; // current index to store pseudo move
 
     for (let i = 0; i < 64; i++) {
       const from = MAILBOX64[i];  // get the mailbox index for the padded board
       const squareFrom = this.chessboard.board[from]; // get the encoded square information
       // TODO -> USE DECODESQUARE INSTEAD OF INDIVIDUAL BITWISE OPERATIONS
       const colourFrom = squareFrom & COLOUR_MASK;  // check the piece colour only
-      let pieceFrom = squareFrom & PIECE_MASK; // check the piece type only
+      const pieceFrom = squareFrom & PIECE_MASK; // check the piece type only
+      let pieceIdx = pieceFrom; // used to access the piece's index reference for MOVES_LIST, SLIDERS, etc.
       let to; // index for where the move will be to
       let squareTo; // encoded square information for square to
       let offset; // the amount to change direction (e.g. -10 for South, +1 for East, etc.)
@@ -56,32 +57,32 @@ export default class Engine {
       if (squareFrom === EMPTY) continue;  // skip if no piece on square
       if (colourFrom !== this.chessboard.turn) continue; // skip if piece is not for current turn
 
-      if ((pieceFrom === PAWN) && (colourFrom === BLACK)) pieceFrom -= 1; // use 0 as piece value for black pawn (e.g. to access MOVES_LIST[0] instead of MOVES_LIST[1])
+      if ((pieceFrom === PAWN) && (colourFrom === BLACK)) pieceIdx -= 1; // use 0 as piece value for black pawn (e.g. to access MOVES_LIST[0] instead of MOVES_LIST[1])
 
-      for (let j = 0; j < MOVES_LIST[pieceFrom].length; j++) { // iterate through the piece's possible move directions
-        const offset = MOVES_LIST[pieceFrom][j];  // the direction to move
+      for (let j = 0; j < MOVES_LIST[pieceIdx].length; j++) { // iterate through the piece's possible move directions
+        const offset = MOVES_LIST[pieceIdx][j];  // the direction to move
         to = from + offset; // the new square index to move to
 
         while (true) { // infinite loop until a break is hit. i.e. edge of board, capture, or piece isn't 'slider'
           squareTo = this.chessboard.board[to];
           const pieceTo = squareTo & PIECE_MASK;
           if (squareTo === EDGE) break; // off edge of board
-          if (pieceTo !== 0) {
+          if (squareTo !== EMPTY) {
             if (((squareTo & COLOUR_MASK) === this.chessboard.turn) || (pieceFrom === PAWN)) break; // occupied by same colour piece, or if piece moving is pawn (blocked by any forward pieces)
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, pieceTo, 0, from, to);
+            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, pieceTo, 0, from, to);
           } else {
             if ((pieceFrom === PAWN) && !(to >= 31 && to <= 88)) { // pawn on final rank -> promote
               const promotions = [KNIGHT, BISHOP, ROOK, QUEEN];
-              for (let k = 0; k < 4; k++, pmIdx++) {
-                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
+              for (let k = 0; k < 4; k++, pseudoMoveIdx++) {
+                pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
               }
-              pmIdx--; // remove extra iteration from loop, as it is done universally later on
+              pseudoMoveIdx--; // remove extra iteration from loop, as it is done universally later on
             } else {
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, 0, from, to);
+              pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, 0, 0, from, to);
             }
           }
-          pmIdx++;
-          if (SLIDERS[pieceFrom] === false) break;  // it shouldn't progress more than 1 step in any direction if it isn't a slider piece
+          pseudoMoveIdx++;
+          if (SLIDERS[pieceIdx] === false) break;  // it shouldn't progress more than 1 step in any direction if it isn't a slider piece
           to += offset; // increment next step
         }
         if (pieceFrom === PAWN) break; // only the single push is used here, the 'special' moves are calculated next
@@ -91,39 +92,39 @@ export default class Engine {
       if (pieceFrom === PAWN) {
         // double push
         if ((squareFrom & HAS_MOVED) === 0) {  // piece hasn't moved
-          offset = MOVES_LIST[pieceFrom][1];
+          offset = MOVES_LIST[pieceIdx][1];
           to = from + offset;
           squareTo = this.chessboard.board[to];
-          const firstSquare = this.chessboard.board[from + MOVES_LIST[pieceFrom][0]];  // first square in double push
+          const firstSquare = this.chessboard.board[from + MOVES_LIST[pieceIdx][0]];  // first square in double push
           if ((squareTo === EMPTY) && (firstSquare === EMPTY)) {  // check both squares are empty
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, DOUBLE_PUSH, 0, 0, 0, from, to);
-            pmIdx++;
+            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, DOUBLE_PUSH, 0, 0, 0, from, to);
+            pseudoMoveIdx++;
           }
         }
 
         // diagonal captures (incl. en passant)
         for (let j = 2; j <= 3; j++) {
-          offset = MOVES_LIST[pieceFrom][j];
+          offset = MOVES_LIST[pieceIdx][j];
           to = from + offset;
           squareTo = this.chessboard.board[to];
           if (squareTo === EDGE) continue;
           // enpassant
           if ((squareTo === EMPTY) && (to === this.chessboard.enpassant)) {
-            const epPawn = this.chessboard.board[to + (-1 * MOVES_LIST[pieceFrom][0])];
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(EN_PASSANT, 0, 0, epPawn, 0, from, to);
-            pmIdx++;
+            const epPawn = this.chessboard.board[to + (-1 * MOVES_LIST[pieceIdx][0])];
+            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(EN_PASSANT, 0, 0, epPawn, 0, from, to);
+            pseudoMoveIdx++;
             continue;
           }
           // normal capture
           if ((squareTo !== EMPTY)) {
             if (to >= 31 && to <= 88) { // if not last rank
-              pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, squareTo, 0, from, to);
-              pmIdx++;
+              pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, squareTo, 0, from, to);
+              pseudoMoveIdx++;
             } else {
               // else, final rank, so promote
               const promotions = [KNIGHT, BISHOP, ROOK, QUEEN];
-              for (let k = 0; k < 4; k++, pmIdx++) {
-                pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
+              for (let k = 0; k < 4; k++, pseudoMoveIdx++) {
+                pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, 0, promotions[k], from, to);
               }
             }
           }
@@ -146,8 +147,8 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, KS_CASTLE, 0, 0, from, from + (2 * EAST));
-            pmIdx++;
+            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, KS_CASTLE, 0, 0, from, from + (2 * EAST));
+            pseudoMoveIdx++;
           }
         }
         // Queenside
@@ -160,8 +161,8 @@ export default class Engine {
             }
           }
           if (kingCanCastle === true) {
-            pseudoMoves[pmIdx] = Engine.encodeMoveData(0, 0, QS_CASTLE, 0, 0, from, from + (2 * WEST));
-            pmIdx++;
+            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, QS_CASTLE, 0, 0, from, from + (2 * WEST));
+            pseudoMoveIdx++;
           }
         }
       }
@@ -485,15 +486,15 @@ export default class Engine {
 // const perft = engine.perft(1);
 // console.log(perft);
 
-// const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
-console.log(Engine.encodeMoveData(0,0,0,0,KNIGHT,31,21), Engine.encodeMoveData(0,0,0,0,BISHOP,31,21), Engine.encodeMoveData(0,0,0,0,ROOK,31,21), Engine.encodeMoveData(0,0,0,0,QUEEN,31,21));
-// console.log(engine.chessboard.board[61]);
-// engine.makeMove(42481452);
-// engine.chessboard.printBoard();
+// const engine = new Engine("8/8/1p6/P7/8/8/8/8 b - - 0 1");
 // const moves = engine.generatePseudoMoves();
+// engine.chessboard.printBoard();
 
 // for (let i=0; i<moves.length; i++) {
 //   const move = moves[i];
 //   if(move === 0) break;
 //   console.log(move, Engine.decodeMoveData(move));
 // }
+
+// console.log(Engine.decodeMoveData(34086955));
+// console.log(Engine.decodeMoveData(8234));

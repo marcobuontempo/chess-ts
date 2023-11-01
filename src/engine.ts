@@ -3,6 +3,8 @@
 // import { NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, SQUARE_TO, SQUARE_FROM, PIECE_PROMOTE, PIECE_CAPTURE, CASTLE, KS_CASTLE, QS_CASTLE, DOUBLE_PUSH, EN_PASSANT, MOVES_LIST, SLIDERS } from "./engine-constants";
 // import { BISHOP, BLACK, CAN_CASTLE, HAS_MOVED, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE } from "./piece-constants";
 
+import ChessBoard from "./board";
+
 // export default class Engine {
 //   chessboard: ChessBoard;
 //   history: Array<any>;

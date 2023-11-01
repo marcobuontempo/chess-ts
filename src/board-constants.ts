@@ -109,3 +109,22 @@ export const MAILBOX120 = new Int8Array([
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 ]);
+
+
+/**
+ * BOARD STATES
+ * binary representation of board state
+ * 
+ * bits 1-4:   [CASTLE_RIGHTS]      whether castle is available KQkq=1111, Kkq=1011, ..., None=0000
+ * bit 5:      [TURN]               0=white, 1=black
+ * bits 6-8:   [UNUSED]             currently unused
+ * bits 9-16:  [ENPASSANT_SQUARE]   the 120[] index of the enpassant square
+ * bits 17-24: [HALFMOVE]           halfmove clock counter, up to 100 (=draw)
+ * bits 25-32: [PREV_PIECE]         the full 8-bit encoding of the last piece moved, with flags (i.e. KNIGHT|BLACK|HAS_MOVED)
+ * 
+ */
+export const CASTLE_RIGHTS = 0b0000_0000_0000_0000_0000_0000_0000_1111;
+export const CURRENT_TURN = 0b0000_0000_0000_0000_0000_0000_0001_0000;
+export const ENPASSANT_SQUARE = 0b0000_0000_0000_0000_1111_1111_0000_0000;
+export const HALFMOVE_COUNT = 0b0000_0000_1111_1111_0000_0000_0000_0000;
+export const PREV_PIECE = 0b1111_1111_0000_0000_0000_0000_0000_0000;

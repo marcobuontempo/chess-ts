@@ -1,6 +1,14 @@
+2. create encodeBoardstate() and decodeBoardstate() functions
+3. update parseFEN() to encode boardstate as UInt32
+4. update getFEN() to properly get FEN
+5. update printBoard() to access boardstate values correctly and display current FEN
+6. update makeMove() to increment ply count and update boardstates
+7. update unmakeMove() to decrement ply count and reverse previous move
+
+
+
 
 - WRITE UNIT TESTS FOR GENERATEMOVES() FOR EVERY PIECE. E.G. (ONLY PAWN ON BOARD, PUSH, DOUBLEPUSH) (PAWN AND PIECE, CAPTURE)
-- DEBUG WHY BLACK PAWN IS GENERATING ALL MOVES (DOUBLE + CAPTURE, WHEN NOT AVAILABLE), BUT WHITE PAWN ISN'T
 
 4. fix perft() function. generateMoves() => BLACK PAWN IS REGISTERING ALL MOVES INSTEAD OF VALID MOVES (I.E. DIAGONAL AND DOUBLEPUSH ALWAYS GENERATING WHEN NOT ACTUALLY AVAILABLE)
 1. makeMove, use meaningful constant values instead of hardcoding numbers

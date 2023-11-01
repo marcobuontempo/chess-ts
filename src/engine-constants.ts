@@ -1,10 +1,12 @@
+// Number.MAX_SAFE_INTEGER: 0b1_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+
 /* MOVES VALUES
  * binary representation of move information
  *
  * bit 1-8:    [TO]           square from (index of 120[] board)
  * bit 9-16:   [FROM]         square to (index of 120[] board)
- * bit 17-19:  [PROMOTE]      3-bit piece value of what to promote to (in case of pawn promotion. i.e. ChessBoard.SQ.N, B, R or Q)
- * bit 20-27:  [CAPTURE]      complete 8-bit piece value of what was captured (i.e. ChessBoard.SQ.P, N, B, R, Q, including flags)
+ * bit 17-19:  [PROMOTE]      3-bit piece value of what to promote to (in case of pawn promotion. i.e. KNIGHT, BISHOP, ROOK, QUEEN)
+ * bit 20-27:  [CAPTURE]      complete 8-bit piece value of what was captured (i.e. KNIGHT|BLACK|HAS_MOVED)
  * bit 28-29:  [CASTLE]       whether the move was castle (1 = KingSide, 2 = QueenSide)
  * bit 30:     [DOUBLE PUSH]  signifies that the move involved a double-push of a pawn
  * bit 31:     [EN PASSANT]   whether an "en passant" move was played

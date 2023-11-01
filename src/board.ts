@@ -1,4 +1,4 @@
-import { COLOUR_MASK, DEFAULT_FEN, EMPTY, MAILBOX120, MAILBOX64, PIECE_LOOKUP, PIECE_MASK, SQUARE_ALPHAS, SQUARE_UTF } from "./board-constants";
+import { COLOUR_MASK, CURRENT_TURN, DEFAULT_FEN, EMPTY, ENPASSANT_SQUARE, HALFMOVE_COUNT, MAILBOX120, MAILBOX64, PIECE_LOOKUP, PIECE_MASK, PREV_PIECE, SQUARE_ALPHAS, SQUARE_UTF } from "./board-constants";
 import { WHITE, BLACK, PAWN, HAS_MOVED, CAN_CASTLE } from "./piece-constants";
 
 export default class ChessBoard {
@@ -194,7 +194,7 @@ export default class ChessBoard {
   /**
    * ENCODE BOARD STATE - CONVERTS BOARD STATE INFORMATION TO BINARY-REPRESENTED DATA
    */
-  static encodeBoardState(castleRights: string, currentTurn: "w" | "b", enpassantSquare: string, halfmoveCount: number, prevPiece: number | null = null) {
+  static encodeBoardState(castleRights: string, currentTurn: "w" | "b", enPassantSquare: string, halfmoveCount: number, prevPiece: number) {
     let encodedBoardState = 0b0000_0000_0000_0000_0000_0000_0000_0000;
 
     // Castle
@@ -211,19 +211,19 @@ export default class ChessBoard {
     }
 
     // En Passant Square
-    if (enpassantSquare !== "-") {
-      const file = enpassantSquare[0].toLowerCase().charCodeAt(0) - 97;
-      const rank = 8 - parseInt(enpassantSquare[1]);
+    if (enPassantSquare !== "-") {
+      const file = enPassantSquare[0].toLowerCase().charCodeAt(0) - 97;
+      const rank = 8 - parseInt(enPassantSquare[1]);
       const index64 = rank * 8 + file;
-      const enpassantNumber = MAILBOX64[index64];
-      encodedBoardState |= (enpassantNumber << 8);
+      const enpassantIdx = MAILBOX64[index64];
+      encodedBoardState |= (enpassantIdx << 8);
     }
 
     // Halfmove Counter
     encodedBoardState |= (halfmoveCount << 16);
 
     // Prev Piece
-    if (prevPiece !== null) encodedBoardState |= (prevPiece << 24);
+    if (prevPiece !== EMPTY) encodedBoardState |= (prevPiece << 24);
 
     return encodedBoardState;
   }
@@ -232,7 +232,35 @@ export default class ChessBoard {
    * DECODE BOARD STATE - CONVERTS BINARY-REPRESENTED BOARD STATE TO BOARD INFORMATION
    */
   static decodeBoardState(encodedBoardState:number) {
-    const { castleRights, currentTurn,  }
+    // Default Values
+    const decodedBoardState = { 
+      castleRights: new Int8Array([0,0,0,0]),
+      currentTurn: WHITE,
+      enPassantSquare: -1, 
+      halfmoveCount: 0,
+      prevPiece: EMPTY
+    };
+
+    // Castle Rights
+    if ((encodedBoardState & 0b1000) !== 0) decodedBoardState.castleRights[0] = 1;
+    if ((encodedBoardState & 0b0100) !== 0) decodedBoardState.castleRights[1] = 1;
+    if ((encodedBoardState & 0b0010) !== 0) decodedBoardState.castleRights[2] = 1;
+    if ((encodedBoardState & 0b0001) !== 0) decodedBoardState.castleRights[3] = 1;
+
+    // Current Turn
+    decodedBoardState.currentTurn = encodedBoardState & CURRENT_TURN;
+
+    // En Passant Square
+    const newEnPassantSquare = (encodedBoardState & ENPASSANT_SQUARE)>>8;
+    if (newEnPassantSquare > 0) decodedBoardState.enPassantSquare = newEnPassantSquare;
+
+    // Halfmove Count
+    decodedBoardState.halfmoveCount = (encodedBoardState & HALFMOVE_COUNT)>>16;
+
+    // Previous Piece
+    decodedBoardState.prevPiece = (encodedBoardState & PREV_PIECE)>>24;
+
+    return decodedBoardState;
   }
 
   /**

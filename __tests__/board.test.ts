@@ -1,5 +1,5 @@
 import ChessBoard from "../src/board";
-import { MAILBOX120, MAILBOX64 } from "../src/board-constants";
+import { EMPTY, MAILBOX120, MAILBOX64 } from "../src/board-constants";
 import { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, CAN_CASTLE, HAS_MOVED, WHITE, BLACK } from "../src/piece-constants";
 
 
@@ -115,7 +115,7 @@ describe("Encode Boardstate", () => {
   test("1. C:KQkq, T:w, EP:-, Half:0, Prev:None", () => {
     const chessboard = new ChessBoard();
     const chessboardProto = Object.getPrototypeOf(chessboard);
-    expect(chessboardProto.constructor.encodeBoardState("KQkq","w","-",0,null)).toStrictEqual(0b0000_0000_0000_0000_0000_0000_0000_1111);
+    expect(chessboardProto.constructor.encodeBoardState("KQkq","w","-",0,EMPTY)).toStrictEqual(0b0000_0000_0000_0000_0000_0000_0000_1111);
   });
   test("2. C:KQk, T:b, EP:e4, Half:0, Prev:White|Pawn", () => {
     const chessboard = new ChessBoard();
@@ -143,32 +143,57 @@ describe("Decode Boardstate", () => {
   test("1. C:KQkq, T:w, EP:-, Half:0, Prev:None", () => {
     const chessboard = new ChessBoard();
     const chessboardProto = Object.getPrototypeOf(chessboard);
-    expect(chessboardProto.constructor.encodeBoardState("KQkq","w","-",0,null)).toStrictEqual(0b0000_0000_0000_0000_0000_0000_0000_1111);
-    expect(chessboardProto.constructor.decodeBoardState(0b0000_0000_0000_0000_0000_0000_0000_1111)).toStrictEqual();
+    expect(chessboardProto.constructor.decodeBoardState(0b0000_0000_0000_0000_0000_0000_0000_1111)).toStrictEqual({ 
+      castleRights: new Int8Array([1,1,1,1]),
+      currentTurn: WHITE,
+      enPassantSquare: -1, 
+      halfmoveCount: 0,
+      prevPiece: EMPTY
+    });
   });
   test("2. C:KQk, T:b, EP:e4, Half:0, Prev:White|Pawn", () => {
     const chessboard = new ChessBoard();
     const chessboardProto = Object.getPrototypeOf(chessboard);
-    expect(chessboardProto.constructor.encodeBoardState("KQk","b","e4",0,WHITE|PAWN)).toStrictEqual(0b0000_0001_0000_0000_0100_0001_0001_1110);
-    expect(chessboardProto.constructor.encodeBoardState("KQk","b","e4",0,WHITE|PAWN)).toStrictEqual(0b0000_0001_0000_0000_0100_0001_0001_1110);
+    expect(chessboardProto.constructor.decodeBoardState(0b0000_0001_0000_0000_0100_0001_0001_1110)).toStrictEqual({ 
+      castleRights: new Int8Array([1,1,1,0]),
+      currentTurn: BLACK,
+      enPassantSquare: 65, 
+      halfmoveCount: 0,
+      prevPiece: WHITE|PAWN
+    });
   });
   test("3. C:Qq, T:w, EP:c5, Half:20, Prev:None", () => {
     const chessboard = new ChessBoard();
     const chessboardProto = Object.getPrototypeOf(chessboard);
-    expect(chessboardProto.constructor.encodeBoardState("Qq","w","c5",20)).toStrictEqual(0b0000_0000_0001_0100_0011_0101_0000_0101);
-    expect(chessboardProto.constructor.encodeBoardState("Qq","w","c5",20)).toStrictEqual(0b0000_0000_0001_0100_0011_0101_0000_0101);
+    expect(chessboardProto.constructor.decodeBoardState(0b0000_0000_0001_0100_0011_0101_0000_0101)).toStrictEqual({ 
+      castleRights: new Int8Array([0,1,0,1]),
+      currentTurn: WHITE,
+      enPassantSquare: 53, 
+      halfmoveCount: 20,
+      prevPiece: EMPTY
+    });
   });
   test("4. C:KQkq, T:w, EP:-, Half:84, Prev:Black|King|CanCastle", () => {
     const chessboard = new ChessBoard();
     const chessboardProto = Object.getPrototypeOf(chessboard);
-    expect(chessboardProto.constructor.encodeBoardState("KQkq","w","-",84,BLACK|KING|CAN_CASTLE)).toStrictEqual(0b0011_0110_0101_0100_0000_0000_0000_1111);
-    expect(chessboardProto.constructor.encodeBoardState("KQkq","w","-",84,BLACK|KING|CAN_CASTLE)).toStrictEqual(0b0011_0110_0101_0100_0000_0000_0000_1111);
+    expect(chessboardProto.constructor.decodeBoardState(0b0011_0110_0101_0100_0000_0000_0000_1111)).toStrictEqual({ 
+      castleRights: new Int8Array([1,1,1,1]),
+      currentTurn: WHITE,
+      enPassantSquare: -1, 
+      halfmoveCount: 84,
+      prevPiece: BLACK|KING|CAN_CASTLE
+    });
   });
   test("5. C:-, T:w, EP:a4, Half:0, Prev:Black|Pawn", () => {
     const chessboard = new ChessBoard();
     const chessboardProto = Object.getPrototypeOf(chessboard);
-    expect(chessboardProto.constructor.encodeBoardState("-","w","a4",0,BLACK|PAWN)).toStrictEqual(0b0001_0001_0000_0000_0011_1101_0000_0000);
-    expect(chessboardProto.constructor.encodeBoardState("-","w","a4",0,BLACK|PAWN)).toStrictEqual(0b0001_0001_0000_0000_0011_1101_0000_0000);
+    expect(chessboardProto.constructor.decodeBoardState(0b0001_0001_0000_0000_0011_1101_0000_0000)).toStrictEqual({ 
+      castleRights: new Int8Array([0,0,0,0]),
+      currentTurn: WHITE,
+      enPassantSquare: 61, 
+      halfmoveCount: 0,
+      prevPiece: BLACK|PAWN
+    });
   });
 });
 

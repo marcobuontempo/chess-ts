@@ -311,27 +311,24 @@ export default class Engine {
    * MAKE MOVE ()
    */
   makeMove(move: number) {
-    // Update move ply
-    this.chessboard.ply += 1;
-
+    // GET current board state info
+    let { castleRights, currentTurn, enPassantSquare, halfmoveCount } = ChessBoard.decodeBoardState(this.chessboard.boardstates[this.chessboard.ply]);
+    
+    // GET current move information
     const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
     const squareFrom = this.chessboard.board[from];
     const pieceFrom = squareFrom & PIECE_MASK;
     const colourFrom = squareFrom & COLOUR_MASK;
 
-    // Get current board state info
-    let { castleRights, currentTurn, enPassantSquare, halfmoveCount } = ChessBoard.decodeBoardState(this.chessboard.boardstates[this.chessboard.ply]);
-
-    let capturedSquare = 0;
+    // UPDATE move ply
+    this.chessboard.ply += 1;
 
     // en passant
     if (enpassant === EN_PASSANT) {
       // remove pawn necessary next to enpassant square (+1 row for white capturing, -1 row for black capturing)
       if (currentTurn === WHITE) {
-        capturedSquare = this.chessboard.board[to + 10];
         this.chessboard.board[to + 10] = EMPTY;
       } else if (currentTurn === BLACK) {
-        capturedSquare = this.chessboard.board[to - 10];
         this.chessboard.board[to - 10] = EMPTY;
       }
     }
@@ -403,6 +400,8 @@ export default class Engine {
 
     // UPDATE boardstates history
     this.chessboard.boardstates[this.chessboard.ply] = ChessBoard.encodeBoardState(castleRights,currentTurn,enPassantSquare,halfmoveCount,squareFrom);
+    // UPDATE move history
+    this.moveHistory[this.chessboard.ply] = move;
   }
 
   /**
@@ -410,28 +409,31 @@ export default class Engine {
    */
   unmakeMove() {
     // RESET to previous board state
-    const [prevCastle, prevEnPassant, prevHalfmove, prevFullmove, prevCapture, move] = this.history.pop();
-    this.chessboard.castle = prevCastle;
-    this.chessboard.enpassant = prevEnPassant;
-    this.chessboard.halfmove = prevHalfmove;
-    this.chessboard.fullmove = prevFullmove;
+    const { castleRights, currentTurn, enPassantSquare, halfmoveCount, prevPiece } = ChessBoard.decodeBoardState(this.chessboard.boardstates[this.chessboard.ply]);
+    this.chessboard.boardstates[this.chessboard.ply] = EMPTY;
 
-    const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
+    // RESET to previous move state
+    const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(this.moveHistory[this.chessboard.ply]);
+    this.moveHistory[this.chessboard.ply] = EMPTY;
+
+    // RESET PLY
+    this.chessboard.ply -= 1;
 
     // 1. set 'from' square back to 'board[to]' (restores moved piece)
-    this.chessboard.board[from] = this.chessboard.board[to];
+    this.chessboard.board[from] = prevPiece;
     // 2. set 'to' square to 'capture' (restores any existing piece)
+    this.chessboard.board[to] = capture;
     // restore en passant capture
     if (enpassant === EN_PASSANT) {
       // when enpassant was from white capture
-      if (this.chessboard.turn === WHITE) {
-        this.chessboard.board[to + 10] = prevCapture;
-      } else if (this.chessboard.turn === BLACK) {
-        this.chessboard.board[to - 10] = prevCapture;
+      if (currentTurn === WHITE) {
+        this.chessboard.board[to + 10] = capture;
+      } else if (currentTurn === BLACK) {
+        this.chessboard.board[to - 10] = capture;
       }
       this.chessboard.board[to] = EMPTY;
     } else {
-      this.chessboard.board[to] = prevCapture;
+      this.chessboard.board[to] = capture;
     }
 
     // MOVE rook and king back if castled
@@ -454,8 +456,6 @@ export default class Engine {
       this.chessboard.board[from] &= ~PIECE_MASK;
       this.chessboard.board[from] |= PAWN;
     }
-    // 4. flip turn
-    this.chessboard.turn = this.chessboard.turn === WHITE ? BLACK : WHITE;
   }
 
   /**
@@ -474,8 +474,8 @@ export default class Engine {
       this.makeMove(moves[i]);
       const currentTurn = this.chessboard.boardstates[this.chessboard.ply] & CURRENT_TURN;
       if (!this.kingIsInCheck(currentTurn)) {
-        const { from, to } = Engine.decodeMoveData(moves[i]);
-        console.log(ChessBoard.numberToCoordinate(from), ChessBoard.numberToCoordinate(to));
+        // const { from, to } = Engine.decodeMoveData(moves[i]);
+        // console.log(ChessBoard.numberToCoordinate(from), ChessBoard.numberToCoordinate(to));
         nodes += this.perft(depth - 1);
       }
       this.unmakeMove();
@@ -486,20 +486,6 @@ export default class Engine {
 
 }
 
-const engine = new Engine("8/p7/8/8/8/8/P7/8 w - - 0 1");
-const perft = engine.perft(2);
+const engine = new Engine();
+const perft = engine.perft(3);
 console.log(perft);
-// !!!!   NOT GENERATING DOUBLE-PUSH FOR SECOND PAWNS - use debugger
-
-// const engine = new Engine("8/8/1p6/P7/8/8/8/8 b - - 0 1");
-// const moves = engine.generatePseudoMoves();
-// engine.chessboard.printBoard();
-
-// for (let i=0; i<moves.length; i++) {
-//   const move = moves[i];
-//   if(move === 0) break;
-//   console.log(move, Engine.decodeMoveData(move));
-// }
-
-// console.log(Engine.decodeMoveData(34086955));
-// console.log(Engine.decodeMoveData(8234));

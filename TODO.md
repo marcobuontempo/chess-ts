@@ -1,7 +1,5 @@
-2. create encodeBoardstate() and decodeBoardstate() functions
-3. update parseFEN() to encode boardstate as UInt32
-4. update getFEN() to properly get FEN
-5. update printBoard() to access boardstate values correctly and display current FEN
+4. change parseFEN() to convert fen values to types used by encodeBoardState.
+5. change encodeBoardState to accept array, numbers, etc. (reverse-engineer of decodeBoardState).
 6. update makeMove() to increment ply count and update boardstates
 7. update unmakeMove() to decrement ply count and reverse previous move
 

@@ -3,7 +3,7 @@ import { WHITE, BLACK, PAWN, HAS_MOVED, CAN_CASTLE } from "./piece-constants";
 
 export default class ChessBoard {
   board = new Int8Array(120);               // 10x12 board - represented as a 1D array
-  ply = 1;                                  // the current number of plys (half-moves) ... fullmove = Math.ceil(ply/2);
+  ply = 1;                                  // the current number of plys (half-moves)
   boardstates = new Int32Array(3600);       // the boardstate of each ply. e.g. boardstates[1]=ply1. includes: castle rights, turn, enpassant square, halfmove count, previous piece moved
   
   constructor(fen = DEFAULT_FEN) {
@@ -32,15 +32,15 @@ export default class ChessBoard {
    */
   private static parseFEN(fen: string) {
     // Object to store output data
-    let board = new Int8Array(120); // board representation
     let state = 0b0000_0000_0000_0000_0000_0000_0000_0000;  // encoded board state
     let ply = 0;  // current match ply
+    let board = new Int8Array(120); // board representation
 
     // STATE
     // Split each segment of FEN
     const fenSplit = fen.split(" ");
     const fenBoard = fenSplit[0];
-    let [, fenTurn, fenCastle, fenEnPassant, fenHalfMove, fenFullMove] = fenSplit;
+    let [, fenTurn, fenCastle, fenEnPassant, fenHalfMove, fenFullMove]: string[] | number[] | Int8Array[] = fenSplit;
     // Set default values if ONLY board position was provided
     if(fenSplit.length === 1) {
       fenHalfMove = String(0);
@@ -48,9 +48,30 @@ export default class ChessBoard {
       fenEnPassant = "-";
       fenCastle = "-";
       fenTurn = "w";
-    }
+    } 
+    // Format Turn
+    fenTurn = (fenTurn.toLowerCase()==="w") ? WHITE : BLACK;
+    // Format Castle
+    const updatedCastle = new Int8Array([0,0,0,0]);
+    if (fenCastle.includes("K")) updatedCastle[0] = 1;
+    if (fenCastle.includes("Q")) updatedCastle[1] = 1;
+    if (fenCastle.includes("k")) updatedCastle[2] = 1;
+    if (fenCastle.includes("q")) updatedCastle[3] = 1;
+    fenCastle = updatedCastle;
+    // Format En Passant Square
+    const file = fenEnPassant[0].toLowerCase().charCodeAt(0) - 97;
+    const rank = 8 - parseInt(fenEnPassant[1]);
+    const index64 = rank * 8 + file;
+    fenEnPassant = MAILBOX64[index64];
+    // Format Half Move
+    fenHalfMove = parseInt(fenHalfMove);
+    // Format Full Move
+    fenFullMove = parseInt(fenFullMove);
     // Set encoded board state
-    state = ChessBoard.encodeBoardState(fenCastle,fenTurn,fenEnPassant,parseInt(fenHalfMove));
+    state = ChessBoard.encodeBoardState(fenCastle,fenTurn,fenEnPassant,fenHalfMove);
+
+    // PLY
+    ply = (fenFullMove*2) + (fenTurn===WHITE ? -1 : 0);
 
     // BOARD
     // Convert board string into array
@@ -95,13 +116,10 @@ export default class ChessBoard {
     // pad 64[] board into 120[]
     board = ChessBoard.padBoard(board64);
 
-    // PLY
-    ply = (parseInt(fenFullMove)*2) + (fenTurn==="w" ? -1 : 0);
-
     return {
-      board,  
       state,
-      ply
+      ply,
+      board,  
     };
   }
 
@@ -178,30 +196,20 @@ export default class ChessBoard {
   /**
    * ENCODE BOARD STATE - CONVERTS BOARD STATE INFORMATION TO BINARY-REPRESENTED DATA
    */
-  static encodeBoardState(castleRights: string, currentTurn: string, enPassantSquare: string, halfmoveCount: number, prevPiece: number = EMPTY) {
+  static encodeBoardState(castleRights: Int8Array | Array<number>, currentTurn: number, enPassantSquare: number, halfmoveCount: number, prevPiece: number = EMPTY) {
     let encodedBoardState = 0b0000_0000_0000_0000_0000_0000_0000_0000;
 
     // Castle
-    if (castleRights.includes("K")) encodedBoardState |= 0b1000;
-    if (castleRights.includes("Q")) encodedBoardState |= 0b0100;
-    if (castleRights.includes("k")) encodedBoardState |= 0b0010;
-    if (castleRights.includes("q")) encodedBoardState |= 0b0001;
+    if (castleRights[0]) encodedBoardState |= 0b1000;
+    if (castleRights[1]) encodedBoardState |= 0b0100;
+    if (castleRights[2]) encodedBoardState |= 0b0010;
+    if (castleRights[3]) encodedBoardState |= 0b0001;
     
     // Current Turn
-    if (currentTurn === "w") {
-      encodedBoardState |= WHITE;
-    } else if (currentTurn === "b") {
-      encodedBoardState |= BLACK;
-    }
+    encodedBoardState |= currentTurn;
 
     // En Passant Square
-    if (enPassantSquare !== "-") {
-      const file = enPassantSquare[0].toLowerCase().charCodeAt(0) - 97;
-      const rank = 8 - parseInt(enPassantSquare[1]);
-      const index64 = rank * 8 + file;
-      const enpassantIdx = MAILBOX64[index64];
-      encodedBoardState |= (enpassantIdx << 8);
-    }
+    if (enPassantSquare > 0) { encodedBoardState |= (enPassantSquare << 8); }
 
     // Halfmove Counter
     encodedBoardState |= (halfmoveCount << 16);
@@ -273,7 +281,7 @@ export default class ChessBoard {
       if (i % 10 === 9) { process.stdout.write(" | |\n"); continue; }
 
       let square = "";
-      const piece = this.board[i] & 0b0001_0111;  // get *only* the piece and colour value for lookup
+      const piece = this.board[i] & PIECE_MASK & COLOUR_MASK;  // get *only* the piece and colour value for lookup
 
       switch (pieceSymbol) {
       case "decimal":

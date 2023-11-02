@@ -109,19 +109,19 @@ describe("Mailbox Arrays", () => {
 
 describe("Encode Boardstate", () => {
   test("1. C:KQkq, T:w, EP:-, Half:0, Prev:None", () => {
-    expect(ChessBoard.encodeBoardState("KQkq","w","-",0,EMPTY)).toStrictEqual(0b0000_0000_0000_0000_0000_0000_0000_1111);
+    expect(ChessBoard.encodeBoardState([1,1,1,1],WHITE,-1,0,EMPTY)).toStrictEqual(0b0000_0000_0000_0000_0000_0000_0000_1111);
   });
   test("2. C:KQk, T:b, EP:e4, Half:0, Prev:White|Pawn", () => {
-    expect(ChessBoard.encodeBoardState("KQk","b","e4",0,WHITE|PAWN)).toStrictEqual(0b0000_0001_0000_0000_0100_0001_0001_1110);
+    expect(ChessBoard.encodeBoardState([1,1,1,0],BLACK,65,0,WHITE|PAWN)).toStrictEqual(0b0000_0001_0000_0000_0100_0001_0001_1110);
   });
   test("3. C:Qq, T:w, EP:c5, Half:20, Prev:None", () => {
-    expect(ChessBoard.encodeBoardState("Qq","w","c5",20)).toStrictEqual(0b0000_0000_0001_0100_0011_0101_0000_0101);
+    expect(ChessBoard.encodeBoardState([0,1,0,1],WHITE,53,20)).toStrictEqual(0b0000_0000_0001_0100_0011_0101_0000_0101);
   });
   test("4. C:KQkq, T:w, EP:-, Half:84, Prev:Black|King|CanCastle", () => {
-    expect(ChessBoard.encodeBoardState("KQkq","w","-",84,BLACK|KING|CAN_CASTLE)).toStrictEqual(0b0011_0110_0101_0100_0000_0000_0000_1111);
+    expect(ChessBoard.encodeBoardState(new Int8Array([1,1,1,1]),WHITE,0,84,BLACK|KING|CAN_CASTLE)).toStrictEqual(0b0011_0110_0101_0100_0000_0000_0000_1111);
   });
   test("5. C:-, T:w, EP:a4, Half:0, Prev:Black|Pawn", () => {
-    expect(ChessBoard.encodeBoardState("-","w","a4",0,BLACK|PAWN)).toStrictEqual(0b0001_0001_0000_0000_0011_1101_0000_0000);
+    expect(ChessBoard.encodeBoardState([0,0,0,0],WHITE,61,0,BLACK|PAWN)).toStrictEqual(0b0001_0001_0000_0000_0011_1101_0000_0000);
   });
 });
 

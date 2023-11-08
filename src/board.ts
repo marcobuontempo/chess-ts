@@ -273,16 +273,17 @@ export default class ChessBoard {
   printBoard(pieceSymbol: "decimal" | "character" | "unicode" = "unicode") {
     const { castleRights, currentTurn, enPassantSquare, halfmoveCount } = ChessBoard.decodeBoardState(this.boardstates[this.ply]);
 
-    process.stdout.write(" +---------------------------+\n");
-    process.stdout.write("+-----------------------------+\n| |");
+    let boardDisplay = "";
+
+    boardDisplay += (" +---------------------------+\n");
+    boardDisplay += ("+-----------------------------+\n| |");
 
     for (let i = 21; i <= 98; i++) {
-      if (i % 10 === 0) { process.stdout.write("| |"); continue; }
-      if (i % 10 === 9) { process.stdout.write(" | |\n"); continue; }
+      if (i % 10 === 0) { boardDisplay += ("| |"); continue; }
+      if (i % 10 === 9) { boardDisplay += (" | |\n"); continue; }
 
       let square = "";
-      const piece = this.board[i] & PIECE_MASK & COLOUR_MASK;  // get *only* the piece and colour value for lookup
-
+      const piece = this.board[i] & (PIECE_MASK | COLOUR_MASK);  // get *only* the piece and colour value for lookup
       switch (pieceSymbol) {
       case "decimal":
         square = String(this.board[i]);
@@ -299,18 +300,22 @@ export default class ChessBoard {
       }
 
       square = square.padStart(3);
-      process.stdout.write(square);
+      boardDisplay += (square);
     }
 
     let printCastle = ["K","Q","k","q"].filter((v,i) => castleRights[i]===1).join("");
     if (printCastle === "") printCastle = "-";
 
-    process.stdout.write(" | |\n+-----------------------------+\n");
-    process.stdout.write(`Turn: ${currentTurn===0 ? "w" : "b"}\n`);
-    process.stdout.write(`Castle: ${printCastle}\n`);
-    process.stdout.write(`En Passant Square: ${enPassantSquare===-1 ? "-" : ChessBoard.numberToCoordinate(enPassantSquare)}\n`);
-    process.stdout.write(`Halfmove: ${halfmoveCount}\n`);
-    process.stdout.write(`Fullmove: ${Math.ceil(this.ply/2)}\n`);
-    process.stdout.write("+-----------------------------+\n");
+    boardDisplay += (" | |\n+-----------------------------+\n");
+    boardDisplay += (`Turn: ${currentTurn===0 ? "w" : "b"}\n`);
+    boardDisplay += (`Castle: ${printCastle}\n`);
+    boardDisplay += (`En Passant Square: ${enPassantSquare===-1 ? "-" : ChessBoard.numberToCoordinate(enPassantSquare)}\n`);
+    boardDisplay += (`Halfmove: ${halfmoveCount}\n`);
+    boardDisplay += (`Fullmove: ${Math.ceil(this.ply/2)}\n`);
+    boardDisplay += ("+-----------------------------+\n");
+
+    process.stdout.write(boardDisplay);
+
+    return boardDisplay;
   }
 }

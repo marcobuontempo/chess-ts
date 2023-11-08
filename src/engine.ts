@@ -3,6 +3,8 @@ import { COLOUR_MASK, CURRENT_TURN, DEFAULT_FEN, EDGE, EMPTY, ENPASSANT_SQUARE, 
 import { NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, SQUARE_TO, SQUARE_FROM, PIECE_PROMOTE, PIECE_CAPTURE, CASTLE, KS_CASTLE, QS_CASTLE, DOUBLE_PUSH, EN_PASSANT, MOVES_LIST, SLIDERS } from "./engine-constants";
 import { BISHOP, BLACK, CAN_CASTLE, HAS_MOVED, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE } from "./piece-constants";
 
+import fs from 'fs';
+
 export default class Engine {
   chessboard: ChessBoard;
   moveHistory = new Uint32Array(3600);
@@ -45,7 +47,6 @@ export default class Engine {
     for (let i = 0; i < 64; i++) {
       const from = MAILBOX64[i];  // get the mailbox index for the padded board
       const squareFrom = this.chessboard.board[from]; // get the encoded square information
-      // TODO -> USE DECODESQUARE INSTEAD OF INDIVIDUAL BITWISE OPERATIONS
       const colourFrom = squareFrom & COLOUR_MASK;  // check the piece colour only
       const pieceFrom = squareFrom & PIECE_MASK; // check the piece type only
       let pieceIdx = pieceFrom; // used to access the piece's index reference for MOVES_LIST, SLIDERS, etc.
@@ -118,7 +119,7 @@ export default class Engine {
             continue;
           }
           // normal capture
-          if ((squareTo !== EMPTY)) {
+          if ((squareTo !== EMPTY) && ((squareTo & COLOUR_MASK) !== colourFrom)) {
             if (to >= 31 && to <= 88) { // if not last rank
               pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, squareTo, 0, from, to);
               pseudoMoveIdx++;
@@ -134,7 +135,7 @@ export default class Engine {
       }
 
       // CASTLING
-      if ((pieceFrom === KING) && (squareFrom !== HAS_MOVED)) { // ensure king hasn't moved TODO: INCORRECT HASMOVED USAGE
+      if ((pieceFrom === KING) && (squareFrom !== HAS_MOVED)) { // ensure king hasn't moved
         const squareRookKing = this.chessboard.board[from + (3 * EAST)]; // kingside rook square
         const squareRookQueen = this.chessboard.board[from + (4 * WEST)];  // queenside rook square
 
@@ -320,8 +321,18 @@ export default class Engine {
     const pieceFrom = squareFrom & PIECE_MASK;
     const colourFrom = squareFrom & COLOUR_MASK;
 
+    // MOVE rook if castle
+    if (castle === KS_CASTLE) {
+      this.chessboard.board[from + 3] = EMPTY;
+      this.chessboard.board[from + 1] = ROOK | currentTurn | HAS_MOVED;
+    } else if (castle === QS_CASTLE) {
+      this.chessboard.board[from - 4] = EMPTY;
+      this.chessboard.board[from - 1] = ROOK | currentTurn | HAS_MOVED;
+    }
+
     // UPDATE move ply
     this.chessboard.ply += 1;
+
 
     // en passant
     if (enpassant === EN_PASSANT) {
@@ -375,15 +386,6 @@ export default class Engine {
         castleRights[2] = 0;
         castleRights[3] = 0;
       }
-    }
-
-    // MOVE rook if castle
-    if (castle === KS_CASTLE) {
-      this.chessboard.board[from + 3] = EMPTY;
-      this.chessboard.board[from + 1] = ROOK | currentTurn | HAS_MOVED;
-    } else if (castle === QS_CASTLE) {
-      this.chessboard.board[from - 4] = EMPTY;
-      this.chessboard.board[from - 1] = ROOK | currentTurn | HAS_MOVED;
     }
 
     // PROMOTE to new piece if possible
@@ -459,10 +461,22 @@ export default class Engine {
   }
 
   /**
+   * GENERATE LEGAL MOVES - validates whether each move is valid or not
+   */
+  generateLegalMoves() {
+    // 1. generate pseudo moves
+    // 2. check each move:
+    //      - king in check? illegal
+    //      - castle: king goes through check? illegal
+  }
+
+  /**
    * TODO: PERFT FUNCTION +++ UNIT TESTS
    */
-  perft(depth: number) {
-    if(depth === 0) return 1;
+  perft(depth: number, prev = "") {
+    if(depth === 0) {
+      return 1;
+    }
 
     let nodes = 0;
 
@@ -474,9 +488,11 @@ export default class Engine {
       this.makeMove(moves[i]);
       const currentTurn = this.chessboard.boardstates[this.chessboard.ply] & CURRENT_TURN;
       if (!this.kingIsInCheck(currentTurn)) {
-        // const { from, to } = Engine.decodeMoveData(moves[i]);
+        const { from, to } = Engine.decodeMoveData(moves[i]);
         // console.log(ChessBoard.numberToCoordinate(from), ChessBoard.numberToCoordinate(to));
-        nodes += this.perft(depth - 1);
+        // fs.appendFile("perft.txt",`${ChessBoard.numberToCoordinate(from)}${ChessBoard.numberToCoordinate(to)}\n`,err => null);
+        // fs.appendFile("perft.txt",`${prev} - ${ChessBoard.numberToCoordinate(from)}${ChessBoard.numberToCoordinate(to)}\n${this.chessboard.printBoard()}`,err => null);
+        nodes += this.perft(depth - 1, `${prev} - ${ChessBoard.numberToCoordinate(from)}${ChessBoard.numberToCoordinate(to)}`);
       }
       this.unmakeMove();
     }
@@ -487,5 +503,9 @@ export default class Engine {
 }
 
 const engine = new Engine();
-const perft = engine.perft(3);
+
+const start = process.hrtime.bigint();
+const perft = engine.perft(3, "");
+const end = process.hrtime.bigint();
+// console.log(perft/(Number(end-start)/1000000000));
 console.log(perft);

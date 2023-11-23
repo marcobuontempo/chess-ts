@@ -22,4 +22,29 @@ describe("Initial Position", () => {
     const nodes = engine.perft(3);
     expect(nodes).toStrictEqual(8902);
   });
+  // test("Depth: 4", () => {
+  //   const engine = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  //   const nodes = engine.perft(4);
+  //   expect(nodes).toStrictEqual(197281);
+  // });
+  // test("Depth: 5", () => {
+  //   const engine = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  //   const nodes = engine.perft(5);
+  //   expect(nodes).toStrictEqual(4865609);
+  // });
+  // test("Depth: 6", () => {
+  //   const engine = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  //   const nodes = engine.perft(6);
+  //   expect(nodes).toStrictEqual(8902);
+  // });
+  // test("Depth: 7", () => {
+  //   const engine = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  //   const nodes = engine.perft(7);
+  //   expect(nodes).toStrictEqual(8902);
+  // });
+  // test("Depth: 8", () => {
+  //   const engine = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  //   const nodes = engine.perft(8);
+  //   expect(nodes).toStrictEqual(8902);
+  // });
 });

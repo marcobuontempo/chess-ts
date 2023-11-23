@@ -239,8 +239,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[21]).toStrictEqual(EMPTY);
     expect(engine.chessboard.board[22]).toStrictEqual(ROOK | BLACK | HAS_MOVED);
     expect(engine.chessboard.ply).toStrictEqual(3);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,0,0,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 0, 0, 0]),
       currentTurn: WHITE,
       enPassantSquare: -1,
       halfmoveCount: 1,
@@ -256,8 +256,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[21]).toStrictEqual(EMPTY);
     expect(engine.chessboard.board[22]).toStrictEqual(ROOK | BLACK | HAS_MOVED);
     expect(engine.chessboard.ply).toStrictEqual(3);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,0,0,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 0, 0, 0]),
       currentTurn: WHITE,
       enPassantSquare: -1,
       halfmoveCount: 1,
@@ -270,8 +270,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[91]).toStrictEqual(EMPTY);
     expect(engine.chessboard.board[61]).toStrictEqual(ROOK | WHITE | HAS_MOVED);
     expect(engine.chessboard.ply).toStrictEqual(4);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,0,0,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 0, 0, 0]),
       currentTurn: BLACK,
       enPassantSquare: -1,
       halfmoveCount: 2,
@@ -286,8 +286,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[81]).toStrictEqual(EMPTY);
     expect(engine.chessboard.board[61]).toStrictEqual(PAWN | WHITE | HAS_MOVED);
     expect(engine.chessboard.ply).toStrictEqual(160);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([1,1,0,1]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([1, 1, 0, 1]),
       currentTurn: BLACK,
       enPassantSquare: 71,
       halfmoveCount: 0,
@@ -307,8 +307,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[24]).toStrictEqual(ROOK | BLACK | HAS_MOVED);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(71);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([1,0,0,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([1, 0, 0, 0]),
       currentTurn: WHITE,
       enPassantSquare: -1,
       halfmoveCount: 21,
@@ -328,8 +328,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[96]).toStrictEqual(ROOK | WHITE | HAS_MOVED);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(70);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,0,1,1]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 0, 1, 1]),
       currentTurn: BLACK,
       enPassantSquare: -1,
       halfmoveCount: 21,
@@ -347,8 +347,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[61]).toStrictEqual(KNIGHT | BLACK | HAS_MOVED);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(165);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,1,0,1]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 1, 0, 1]),
       currentTurn: WHITE,
       enPassantSquare: -1,
       halfmoveCount: 0,
@@ -369,8 +369,8 @@ describe("Make Move", () => {
     expect(engine.chessboard.board[45]).toStrictEqual(EMPTY);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(198);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([1,0,1,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([1, 0, 1, 0]),
       currentTurn: BLACK,
       enPassantSquare: -1,
       halfmoveCount: 0,
@@ -391,8 +391,8 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.board[21]).toStrictEqual(ROOK | BLACK | HAS_MOVED);
     expect(engine.chessboard.board[22]).toStrictEqual(EMPTY);
     expect(engine.chessboard.ply).toStrictEqual(2);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,0,0,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 0, 0, 0]),
       currentTurn: BLACK,
       enPassantSquare: -1,
       halfmoveCount: 0,
@@ -413,22 +413,22 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.board[91]).toStrictEqual(ROOK | WHITE | HAS_MOVED);
     expect(engine.chessboard.board[61]).toStrictEqual(EMPTY);
     expect(engine.chessboard.ply).toStrictEqual(3);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,0,0,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 0, 0, 0]),
       currentTurn: WHITE,
       enPassantSquare: -1,
       halfmoveCount: 1,
       prevPiece: ROOK | BLACK | HAS_MOVED
     });
     expect(engine.moveHistory[engine.chessboard.ply]).toStrictEqual(move1);
-    
+
     // Unmake First
     engine.unmakeMove();
     expect(engine.chessboard.board[21]).toStrictEqual(ROOK | BLACK | HAS_MOVED);
     expect(engine.chessboard.board[22]).toStrictEqual(EMPTY);
     expect(engine.chessboard.ply).toStrictEqual(2);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,0,0,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 0, 0, 0]),
       currentTurn: BLACK,
       enPassantSquare: -1,
       halfmoveCount: 0,
@@ -446,8 +446,8 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.board[81]).toStrictEqual(PAWN | WHITE);
     expect(engine.chessboard.board[61]).toStrictEqual(EMPTY);
     expect(engine.chessboard.ply).toStrictEqual(159);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([1,1,0,1]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([1, 1, 0, 1]),
       currentTurn: WHITE,
       enPassantSquare: -1,
       halfmoveCount: 20,
@@ -472,8 +472,8 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.board[21]).toStrictEqual(ROOK | BLACK);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(70);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([1,0,1,1]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([1, 0, 1, 1]),
       currentTurn: BLACK,
       enPassantSquare: -1,
       halfmoveCount: 20,
@@ -498,8 +498,8 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.board[98]).toStrictEqual(ROOK | WHITE);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(69);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([1,0,1,1]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([1, 0, 1, 1]),
       currentTurn: WHITE,
       enPassantSquare: -1,
       halfmoveCount: 20,
@@ -519,8 +519,8 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.board[61]).toStrictEqual(pawnCapture);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(164);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([0,1,0,1]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([0, 1, 0, 1]),
       currentTurn: BLACK,
       enPassantSquare: -1,
       halfmoveCount: 30,
@@ -543,8 +543,8 @@ describe("Unmake Move", () => {
     expect(engine.chessboard.board[45]).toStrictEqual(EMPTY);
     // Board State
     expect(engine.chessboard.ply).toStrictEqual(197);
-    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({ 
-      castleRights: new Int8Array([1,0,1,0]),
+    expect(ChessBoard.decodeBoardState(engine.chessboard.boardstates[engine.chessboard.ply])).toStrictEqual({
+      castleRights: new Int8Array([1, 0, 1, 0]),
       currentTurn: WHITE,
       enPassantSquare: 44,
       halfmoveCount: 0,
@@ -555,11 +555,11 @@ describe("Unmake Move", () => {
 });
 
 
-describe("Generate Pseudo Moves", () => {
+describe("Generate Moves", () => {
   describe("White Pawn", () => {
     test("1. Single Push", () => {
       const engine = new Engine("8/8/8/8/3P4/8/8/8 w - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
       expect(moves[0]).toStrictEqual(16438);    // encoded single pawn push
@@ -567,7 +567,7 @@ describe("Generate Pseudo Moves", () => {
     });
     test("2. Double Push", () => {
       const engine = new Engine("8/8/8/8/8/8/P7/8 w - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(20807);
@@ -576,24 +576,24 @@ describe("Generate Pseudo Moves", () => {
     });
     test("3. East Capture", () => {
       const engine = new Engine("8/8/8/8/8/1pp5/1P7/8 w - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(42488393);
-      expect(moves[1]).toStrictEqual(0);  
+      expect(moves[1]).toStrictEqual(0);
     });
     test("4. West Capture", () => {
       const engine = new Engine("8/8/8/8/p7/1P6/8/8 w - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(18494);
-      expect(moves[1]).toStrictEqual(42485821);  
+      expect(moves[1]).toStrictEqual(42485821);
       expect(moves[2]).toStrictEqual(0);
     });
     test("4. En Passant", () => {
       const engine = new Engine("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(14125);
@@ -602,21 +602,21 @@ describe("Generate Pseudo Moves", () => {
     });
     test("5. Promotion", () => {
       const engine = new Engine("8/P7/8/8/8/8/8/8 w - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves).toContain(139029); // knight promotion
       expect(moves).toContain(204565); // bishop promotion
       expect(moves).toContain(270101); // rook promotion
       expect(moves).toContain(335637); // queen promotion
-      expect(moves[4]).toStrictEqual(0);  
+      expect(moves[4]).toStrictEqual(0);
     });
   });
 
   describe("Black Pawn", () => {
     test("1. Single Push", () => {
       const engine = new Engine("8/8/8/3p4/8/8/8/8 b - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
       expect(moves[0]).toStrictEqual(13888);    // encoded single pawn push
@@ -624,7 +624,7 @@ describe("Generate Pseudo Moves", () => {
     });
     test("2. Double Push", () => {
       const engine = new Engine("8/p7/8/8/8/8/8/8 b - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(7977);
@@ -633,24 +633,24 @@ describe("Generate Pseudo Moves", () => {
     });
     test("3. East Capture", () => {
       const engine = new Engine("8/1p6/1PP5/8/8/8/8/8 b - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(34086955);
-      expect(moves[1]).toStrictEqual(0);  
+      expect(moves[1]).toStrictEqual(0);
     });
     test("4. West Capture", () => {
       const engine = new Engine("8/8/1p6/P7/8/8/8/8 b - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(10804);
-      expect(moves[1]).toStrictEqual(34089523);  
+      expect(moves[1]).toStrictEqual(34089523);
       expect(moves[2]).toStrictEqual(0);
     });
     test("4. En Passant", () => {
       const engine = new Engine("8/8/8/8/3pP3/8/8/8 b - e3 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves[0]).toStrictEqual(16458);
@@ -659,14 +659,656 @@ describe("Generate Pseudo Moves", () => {
     });
     test("5. Promotion", () => {
       const engine = new Engine("8/8/8/8/8/8/7p/8 b - - 0 1");
-      const moves = engine.generatePseudoMoves();
+      const moves = engine.generateLegalMoves();
 
       expect(moves.length).toStrictEqual(218);
       expect(moves).toContain(153698); // knight promotion
       expect(moves).toContain(219234); // bishop promotion
       expect(moves).toContain(284770); // rook promotion
       expect(moves).toContain(350306); // queen promotion
-      expect(moves[4]).toStrictEqual(0);  
+      expect(moves[4]).toStrictEqual(0);
+    });
+  });
+
+  describe("White Knight", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3N4/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,43));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,45));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,56));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,76));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,85));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,83));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,72));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,52));
+      expect(moves[8]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/N7/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,42));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,82));
+      expect(moves[4]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/8/2p1n3/1b3r2/3N4/1q3q2/2p1n3/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,43));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|KNIGHT|HAS_MOVED,0,64,45));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|ROOK|HAS_MOVED,0,64,56));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|QUEEN|HAS_MOVED,0,64,76));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|KNIGHT|HAS_MOVED,0,64,85));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,83));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|QUEEN|HAS_MOVED,0,64,72));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|BISHOP|HAS_MOVED,0,64,52));
+      expect(moves[8]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/2P1P3/1P3P2/3N4/1P3P2/2P1P3/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[10]).toStrictEqual(0);       // the index for when no more moves are available (8x single pawn pushes, 2x double pawn push, 0x knight)
+    });
+  });
+
+  describe("Black Knight", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3n4/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,43));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,45));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,56));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,76));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,85));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,83));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,72));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,52));
+      expect(moves[8]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/n7/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,42));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,82));
+      expect(moves[4]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/2P1N3/1B3R2/3n4/1Q3Q2/2P1N3/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,54,33));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|KNIGHT|HAS_MOVED,0,54,35));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|ROOK|HAS_MOVED,0,54,46));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|QUEEN|HAS_MOVED,0,54,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|KNIGHT|HAS_MOVED,0,54,75));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,54,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|QUEEN|HAS_MOVED,0,54,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|BISHOP|HAS_MOVED,0,54,42));
+      expect(moves[8]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/2p1p3/1p3p2/3n4/1p3p2/2p1p3/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[10]).toStrictEqual(0);       // the index for when no more moves are available (8x single pawn pushes, 2x double pawn push, 0x knight)
+    });
+  });
+
+  describe("White Bishop", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3B4/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,31));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,42));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,86));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,97));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,28));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,37));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,46));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,82));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,91));
+      expect(moves[13]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/B7/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,25));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,43));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,52));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,72));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,83));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,94));
+      expect(moves[7]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/8/1q6/2p1n3/3B4/2b5/5r2/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|KNIGHT|HAS_MOVED,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|BISHOP|HAS_MOVED,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|ROOK|HAS_MOVED,0,64,86));
+      expect(moves[5]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/2P1P3/3B4/2P1P3/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[8]).toStrictEqual(0);       // the index for when no more moves are available (8x single pawn pushes, 0x bishop)
+    });
+  });
+
+  describe("Black Bishop", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3b4/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,31));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,42));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,86));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,97));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,28));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,37));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,46));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,82));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,91));
+      expect(moves[13]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/b7/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,25));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,43));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,52));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,72));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,83));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,94));
+      expect(moves[7]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/8/1Q6/2P1N3/3b4/2B5/5R2/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|KNIGHT|HAS_MOVED,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|BISHOP|HAS_MOVED,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|ROOK|HAS_MOVED,0,64,86));
+      expect(moves[5]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/2p1p3/3b4/2p1p3/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[8]).toStrictEqual(0);       // the index for when no more moves are available (8x single pawn pushes, 0x bishop)
+    });
+  });
+
+  describe("White Rook", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3R4/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,24));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,44));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,84));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,94));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,61));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,68));
+      expect(moves[14]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/R7/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,21));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,31));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,41));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,51));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,71));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,81));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,91));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,64));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,68));
+      expect(moves[14]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/8/3q4/3n4/2pRb3/8/3r4/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|KNIGHT|HAS_MOVED,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|BISHOP|HAS_MOVED,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|ROOK|HAS_MOVED,0,64,84));
+      expect(moves[5]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/3P4/2PRP3/3P4/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[3]).toStrictEqual(0);        // the index for when no more moves are available (3x single pawn pushes, 0x rook)
+    });
+  });
+
+  describe("Black Rook", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3r4/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,24));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,44));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,84));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,94));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,61));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,68));
+      expect(moves[14]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/r7/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,21));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,31));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,41));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,51));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,71));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,81));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,91));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,64));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,68));
+      expect(moves[14]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/8/3Q4/3N4/2PrB3/8/3R4/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|KNIGHT|HAS_MOVED,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|BISHOP|HAS_MOVED,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|ROOK|HAS_MOVED,0,64,84));
+      expect(moves[5]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/3p4/2prp3/3p4/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[3]).toStrictEqual(0);        // the index for when no more moves are available (3x single pawn pushes, 0x rook)
+    });
+  });
+
+  describe("White Queen", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3Q4/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,24));  // along file
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,44));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,84));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,94));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,61));  // along rank
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,68));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,91));  // along diagonal - southeast to northwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,82));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,46));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,37));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,28));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,31));  // along diagonal - northeast to southwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,42));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,86));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,97));
+      expect(moves[27]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/Q7/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,21));  // along file
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,31));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,41));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,51));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,71));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,81));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,91));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,62));  // along rank
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,64));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,68));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,52));  // along diagonal - southeast to northwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,43));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,25));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,72));  // along diagonal - northeast to southwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,83));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,94));
+      expect(moves[21]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/8/3q4/2pnb3/2pQb3/2q1q3/3r4/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|KNIGHT|HAS_MOVED,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|BISHOP|HAS_MOVED,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|BISHOP|HAS_MOVED,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|QUEEN|HAS_MOVED,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|ROOK|HAS_MOVED,0,64,84));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,BLACK|QUEEN|HAS_MOVED,0,64,75));
+      expect(moves[9]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/2PPP3/2PQP3/2PPP3/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[3]).toStrictEqual(0);        // the index for when no more moves are available (3x single pawn pushes, 0x queen)
+    });
+  });
+
+  describe("Black Queen", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3q4/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,24));  // along file
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,44));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,84));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,94));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,61));  // along rank
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,68));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,91));  // along diagonal - southeast to northwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,82));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,46));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,37));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,28));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,31));  // along diagonal - northeast to southwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,42));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,86));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,97));
+      expect(moves[27]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/q7/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,21));  // along file
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,31));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,41));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,51));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,71));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,81));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,91));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,62));  // along rank
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,64));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,66));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,67));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,68));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,52));  // along diagonal - southeast to northwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,43));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,34));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,25));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,72));  // along diagonal - northeast to southwest
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,83));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,94));
+      expect(moves[21]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      const engine = new Engine("8/8/3Q4/2PNB3/2PqB3/2Q1Q3/3R4/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|KNIGHT|HAS_MOVED,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|BISHOP|HAS_MOVED,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|BISHOP|HAS_MOVED,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|QUEEN|HAS_MOVED,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|ROOK|HAS_MOVED,0,64,84));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,WHITE|QUEEN|HAS_MOVED,0,64,75));
+      expect(moves[9]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/2ppp3/2pqp3/2ppp3/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[3]).toStrictEqual(0);        // the index for when no more moves are available (3x single pawn pushes, 0x queen)
+    });
+  });
+
+  describe("White King", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3K4/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves[8]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/K7/8/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,51));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,52));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,72));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,71));
+      expect(moves[5]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      // separate into 2 separate scenarios, as otherwise surrounding pieces protect captures from king
+      const engine1 = new Engine("8/8/8/2ppp3/3K4/2ppp3/8/8 w - - 0 1");
+      const moves1 = engine1.generateLegalMoves();
+      expect(moves1.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,53));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,54));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,55));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,73));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,74));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,75));
+      expect(moves1[6]).toStrictEqual(0);        // the index for when no more moves are available
+
+      const engine2 = new Engine("8/8/8/8/2pKp3/8/8/8 w - - 0 1");
+      const moves2 = engine2.generateLegalMoves();
+      expect(moves2.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,54));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,63));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,BLACK|PAWN|HAS_MOVED,0,64,65));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves2[7]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/2PPP3/2PKP3/2PPP3/8/8 w - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[3]).toStrictEqual(0);        // the index for when no more moves are available (3x single pawn pushes, 0x queen)
+    });
+  });
+
+  describe("Black King", () => {
+    test("1. Regular Moves - Centre of Board", () => {
+      const engine = new Engine("8/8/8/8/3k4/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,54));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,63));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,65));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves[8]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("2. Regular Moves - Edge of Board", () => {
+      const engine = new Engine("8/8/8/8/k7/8/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,51));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,52));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,62));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,72));
+      expect(moves).toContain(Engine.encodeMoveData(0,0,0,0,0,61,71));
+      expect(moves[5]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("3. Captures", () => {
+      // separate into 2 separate scenarios, as otherwise surrounding pieces protect captures from king
+      const engine1 = new Engine("8/8/8/2PPP3/3k4/2PPP3/8/8 b - - 0 1");
+      const moves1 = engine1.generateLegalMoves();
+      expect(moves1.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,53));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,54));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,55));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,73));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,74));
+      expect(moves1).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,75));
+      expect(moves1[6]).toStrictEqual(0);        // the index for when no more moves are available
+
+      const engine2 = new Engine("8/8/8/8/2PkP3/8/8/8 b - - 0 1");
+      const moves2 = engine2.generateLegalMoves();
+      expect(moves2.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,53));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,55));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,63));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,WHITE|PAWN|HAS_MOVED,0,64,65));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,73));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,74));
+      expect(moves2).toContain(Engine.encodeMoveData(0,0,0,0,0,64,75));
+      expect(moves2[7]).toStrictEqual(0);        // the index for when no more moves are available
+    });
+    test("4. Blocked Squares", () => {
+      const engine = new Engine("8/8/8/2ppp3/2pkp3/2ppp3/8/8 b - - 0 1");
+      const moves = engine.generateLegalMoves();
+
+      expect(moves.length).toStrictEqual(218);  // moves array is always 218 length
+      expect(moves[3]).toStrictEqual(0);        // the index for when no more moves are available (3x single pawn pushes, 0x queen)
     });
   });
 });

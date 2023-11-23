@@ -72,7 +72,9 @@ export default class Engine {
           if (squareTo === EDGE) break; // off edge of board
           if (squareTo !== EMPTY) {
             if (((squareTo & COLOUR_MASK) === currentTurn) || (pieceFrom === PAWN)) break; // occupied by same colour piece, or if piece moving is pawn (blocked by any forward pieces)
-            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, pieceTo, 0, from, to);
+            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, squareTo, 0, from, to);
+            pseudoMoveIdx++;
+            break;
           } else {
             if ((pieceFrom === PAWN) && !(to >= 31 && to <= 88)) { // pawn on final rank -> promote
               const promotions = [KNIGHT, BISHOP, ROOK, QUEEN];
@@ -135,12 +137,12 @@ export default class Engine {
       }
 
       // CASTLING
-      if ((pieceFrom === KING) && (squareFrom !== HAS_MOVED)) { // ensure king hasn't moved
+      if ((pieceFrom === KING) && ((squareFrom & HAS_MOVED) === 0)) { // ensure king hasn't moved
         const squareRookKing = this.chessboard.board[from + (3 * EAST)]; // kingside rook square
         const squareRookQueen = this.chessboard.board[from + (4 * WEST)];  // queenside rook square
 
         // Kingside - Check if rook is on starting square and hasn't moved
-        if (((squareRookKing & PIECE_MASK) === ROOK) && (squareRookKing & HAS_MOVED) === 0) {
+        if (((squareRookKing & PIECE_MASK) === ROOK) && (squareRookKing & HAS_MOVED) === 0) { //TODO: redundant to check if rook? since has_moved == 0 already implies
           let kingCanCastle = true;
           // Ensure squares are empty between king and rook
           for (let k = 1; k <= 2; k++) {
@@ -267,7 +269,7 @@ export default class Engine {
    * EVALUATE/SCORE POSITION
    * returns a score *relative* to the current turn (i.e. if white is winning, but it's black's turn, a -ve will be returned)
    */
-  private SCORES: {[key: number]:number} = {
+  private SCORES: { [key: number]: number } = {
     [PAWN]: 1,
     [KNIGHT]: 2.8,
     [BISHOP]: 3,
@@ -281,7 +283,7 @@ export default class Engine {
     const currentTurn = (this.chessboard.boardstates[this.chessboard.ply] & CURRENT_TURN);
     const toMove = currentTurn === WHITE ? wOffset : bOffset;
 
-    const materialScores: {[key:number] : number} = {
+    const materialScores: { [key: number]: number } = {
       [PAWN]: 0,
       [KNIGHT]: 0,
       [BISHOP]: 0,
@@ -314,7 +316,7 @@ export default class Engine {
   makeMove(move: number) {
     // GET current board state info
     let { castleRights, currentTurn, enPassantSquare, halfmoveCount } = ChessBoard.decodeBoardState(this.chessboard.boardstates[this.chessboard.ply]);
-    
+
     // GET current move information
     const { enpassant, doublePush, castle, capture, promotion, from, to } = Engine.decodeMoveData(move);
     const squareFrom = this.chessboard.board[from];
@@ -398,10 +400,10 @@ export default class Engine {
     this.chessboard.board[from] = EMPTY;
 
     // CHANGE turn
-    currentTurn = (currentTurn===WHITE) ? BLACK : WHITE;
+    currentTurn = (currentTurn === WHITE) ? BLACK : WHITE;
 
     // UPDATE boardstates history
-    this.chessboard.boardstates[this.chessboard.ply] = ChessBoard.encodeBoardState(castleRights,currentTurn,enPassantSquare,halfmoveCount,squareFrom);
+    this.chessboard.boardstates[this.chessboard.ply] = ChessBoard.encodeBoardState(castleRights, currentTurn, enPassantSquare, halfmoveCount, squareFrom);
     // UPDATE move history
     this.moveHistory[this.chessboard.ply] = move;
   }
@@ -443,14 +445,14 @@ export default class Engine {
       this.chessboard.board[from + 3] = this.chessboard.board[from + 1] & ~HAS_MOVED; // return rook to position
       this.chessboard.board[from] |= CAN_CASTLE;  // return king state to 'can castle'
       this.chessboard.board[from] &= ~HAS_MOVED;  // return king state to 'unmoved'
-      this.chessboard.board[to] = EMPTY; 
+      this.chessboard.board[to] = EMPTY;
       this.chessboard.board[from + 1] = EMPTY;
     } else if (castle === QS_CASTLE) {
       this.chessboard.board[from - 4] = this.chessboard.board[from - 1] & ~HAS_MOVED; // return rook to position
       this.chessboard.board[from] |= CAN_CASTLE;  // return king state to 'can castle'
       this.chessboard.board[from] &= ~HAS_MOVED;  // return king state to 'unmoved'
-      this.chessboard.board[to] = EMPTY; 
-      this.chessboard.board[from - 1] = EMPTY; 
+      this.chessboard.board[to] = EMPTY;
+      this.chessboard.board[from - 1] = EMPTY;
     }
 
     // 3. if promotion, set 'from' back to pawn (& ~pc | P)
@@ -464,36 +466,78 @@ export default class Engine {
    * GENERATE LEGAL MOVES - validates whether each move is valid or not
    */
   generateLegalMoves() {
+    const legalMoves = new Uint32Array(218);
+    let idx = 0;
+
     // 1. generate pseudo moves
+    const pseudoMoves = this.generatePseudoMoves();
     // 2. check each move:
-    //      - king in check? illegal
-    //      - castle: king goes through check? illegal
+    for (let i = 0; i <= 218; i++) {
+      const move = pseudoMoves[i];
+      if (move === 0) break;
+      const { from, to, castle } = Engine.decodeMoveData(move);
+      const currentTurn = this.chessboard.boardstates[this.chessboard.ply] & CURRENT_TURN;
+      if (castle === KS_CASTLE) {
+        let isLegal = true;
+        const king = this.chessboard.board[from];
+        this.chessboard.board[from] = EMPTY;
+        for (let j = 1; j <= 2; j++) {
+          this.chessboard.board[from + j] = king;
+          if (this.kingIsInCheck(king & COLOUR_MASK)) isLegal = false;
+          this.chessboard.board[from + j] = EMPTY;
+          if (isLegal === false) break;
+        }
+        this.chessboard.board[from] = king;
+        if (isLegal === true) {
+          legalMoves[idx] = move;
+          idx++;
+        }
+      } else if (castle === QS_CASTLE) {
+        let isLegal = true;
+        const king = this.chessboard.board[from];
+        this.chessboard.board[from] = EMPTY;
+        for (let j = 1; j <= 3; j++) {
+          this.chessboard.board[from - j] = king;
+          if (this.kingIsInCheck(king & COLOUR_MASK)) isLegal = false;
+          this.chessboard.board[from + j] = EMPTY;
+          if (isLegal === false) break;
+        }
+        this.chessboard.board[from] = king;
+        if (isLegal === true) {
+          legalMoves[idx] = move;
+          idx++;
+        }
+      } else {
+        this.makeMove(move);
+        if (!this.kingIsInCheck(currentTurn)) {
+          legalMoves[idx] = move;
+          idx++;
+        }
+        this.unmakeMove();
+      }
+
+    }
+
+    return legalMoves;
   }
 
   /**
    * TODO: PERFT FUNCTION +++ UNIT TESTS
    */
   perft(depth: number, prev = "") {
-    if(depth === 0) {
+    if (depth === 0) {
+      // fs.appendFile("perft.txt", `${prev}\n`, err => null);
       return 1;
     }
 
     let nodes = 0;
 
-    
-    const moves = this.generatePseudoMoves();
-    
-    for(let i=0; i<=218; i++) {
-      if(moves[i] === 0) break;
+    const moves = this.generateLegalMoves();
+
+    for (let i = 0; i <= 218; i++) {
+      if (moves[i] === 0) break;
       this.makeMove(moves[i]);
-      const currentTurn = this.chessboard.boardstates[this.chessboard.ply] & CURRENT_TURN;
-      if (!this.kingIsInCheck(currentTurn)) {
-        const { from, to } = Engine.decodeMoveData(moves[i]);
-        // console.log(ChessBoard.numberToCoordinate(from), ChessBoard.numberToCoordinate(to));
-        // fs.appendFile("perft.txt",`${ChessBoard.numberToCoordinate(from)}${ChessBoard.numberToCoordinate(to)}\n`,err => null);
-        // fs.appendFile("perft.txt",`${prev} - ${ChessBoard.numberToCoordinate(from)}${ChessBoard.numberToCoordinate(to)}\n${this.chessboard.printBoard()}`,err => null);
-        nodes += this.perft(depth - 1, `${prev} - ${ChessBoard.numberToCoordinate(from)}${ChessBoard.numberToCoordinate(to)}`);
-      }
+      nodes += this.perft(depth - 1);
       this.unmakeMove();
     }
 
@@ -502,10 +546,16 @@ export default class Engine {
 
 }
 
+
+
+
+// Clear file contents
+// fs.writeFile("perft.txt", "", err => null);
+
 const engine = new Engine();
 
 const start = process.hrtime.bigint();
-const perft = engine.perft(3, "");
+const perft = engine.perft(3);
 const end = process.hrtime.bigint();
 // console.log(perft/(Number(end-start)/1000000000));
 console.log(perft);

@@ -2,7 +2,8 @@
   "scripts": {
     "build": "tsc",
     "start": "npx ts-node src/engine.ts",
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=perft\\.test\\.ts",
+    "perft": "jest perft.test.ts",
     "lint": "eslint . --ext .ts"
   },
   "devDependencies": {

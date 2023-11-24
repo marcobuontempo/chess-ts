@@ -68,11 +68,10 @@ export default class Engine {
 
         while (true) { // infinite loop until a break is hit. i.e. edge of board, capture, or piece isn't 'slider'
           squareTo = this.chessboard.board[to];
-          const pieceTo = squareTo & PIECE_MASK;
           if (squareTo === EDGE) break; // off edge of board
           if (squareTo !== EMPTY) {
             if (((squareTo & COLOUR_MASK) === currentTurn) || (pieceFrom === PAWN)) break; // occupied by same colour piece, or if piece moving is pawn (blocked by any forward pieces)
-            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, squareTo, 0, from, to);
+            pseudoMoves[pseudoMoveIdx] = Engine.encodeMoveData(0, 0, 0, squareTo, 0, from, to); // capture
             pseudoMoveIdx++;
             break;
           } else {
@@ -182,25 +181,30 @@ export default class Engine {
    * then, searches each direction in reverse (i.e. from the king's origin), until a piece is found
    * if the piece is an attack (e.g. opposite bishop on diagonal, opposite rook on rank/file), then king is in check
    */
-  kingIsInCheck(colour: number) {
-    let kingInCheck = false;
-
+  kingIsInCheck(kingColour: number) {
     for (let i = 0; i < 64; i++) {
       const from = MAILBOX64[i];
       const squareFrom = this.chessboard.board[from];
       const pieceFrom = squareFrom & PIECE_MASK;
       const colourFrom = squareFrom & COLOUR_MASK;
 
-      if ((squareFrom === EMPTY) || !((pieceFrom === KING) && (colourFrom === colour))) continue; // If empty, or not King in specified colour, skip square
+      if ((squareFrom === EMPTY) || !((pieceFrom === KING) && (colourFrom === kingColour))) continue; // If empty, or not King in specified colour, skip square
       let offset;
       let to;
       let squareTo;
       let pieceTo;
       let colourTo;
 
-      let moves = MOVES_LIST[pieceFrom]; // store all king move directions
+      let moves = MOVES_LIST[KING]; // store all king move directions
+      // Check opponent king is not attacking
       for (let j = 0; j < moves.length; j++) {
-        if (kingInCheck === true) return kingInCheck;  // don't continue searching if king is already found to be in check
+        squareTo = this.chessboard.board[from + moves[j]];
+        pieceTo = squareTo & PIECE_MASK;
+        colourTo = squareTo & COLOUR_MASK;
+        if ((pieceTo === KING) && (colourTo !== kingColour)) return true;
+      }
+      // Check all sliders -> Bishop, Rook, Queen
+      for (let j = 0; j < moves.length; j++) {
         offset = moves[j];
         to = from + offset;
         while (true) {
@@ -211,20 +215,21 @@ export default class Engine {
             to += offset;
             continue;
           }
-          if ((colourTo === colour) || (squareTo === EDGE)) break; // if same colour piece or edge of board, not under attack in the specified direction
+          if ((colourTo === kingColour) || (squareTo === EDGE)) break; // if same colour piece or edge of board, not under attack in the specified direction
+          if (SLIDERS[pieceTo] === false) break;  // if the piece is not a slider, then it isn't attacking the king
           // if Rook or Queen, on same rank or file
           if (((pieceTo === ROOK) || (pieceTo === QUEEN)) && ((offset === NORTH) || (offset === SOUTH) || (offset === EAST) || (offset === WEST))) {
-            kingInCheck = true;
+            return true;
           }
           // if Bishop or Queen, on same diagonal
           if (((pieceTo === BISHOP) || (pieceTo === QUEEN)) && ((offset === NORTHEAST) || (offset === SOUTHEAST) || (offset === NORTHWEST) || (offset === SOUTHWEST))) {
-            kingInCheck = true;
+            return true;
           }
           to += offset; // check next square
         }
       }
 
-      const pawn = colour === BLACK ? 0 : 1;
+      const pawn = kingColour === BLACK ? 0 : 1;
       const pawnMoves = MOVES_LIST[pawn];
       // East - pawn capture
       offset = pawnMoves[2];
@@ -232,9 +237,8 @@ export default class Engine {
       squareTo = this.chessboard.board[to];
       colourTo = squareTo & COLOUR_MASK;
       pieceTo = squareTo & PIECE_MASK;
-      if ((colourTo !== colour) && (pieceTo === PAWN)) {
-        kingInCheck = true;
-        return kingInCheck;
+      if ((colourTo !== kingColour) && (pieceTo === PAWN)) {
+        return true;
       }
       // West - pawn capture
       offset = pawnMoves[3];
@@ -242,9 +246,8 @@ export default class Engine {
       squareTo = this.chessboard.board[to];
       colourTo = squareTo & COLOUR_MASK;
       pieceTo = squareTo & PIECE_MASK;
-      if ((colourTo !== colour) && (pieceTo === PAWN)) {
-        kingInCheck = true;
-        return kingInCheck;
+      if ((colourTo !== kingColour) && (pieceTo === PAWN)) {
+        return true;
       }
 
       //KNIGHT moves
@@ -255,13 +258,12 @@ export default class Engine {
         squareTo = this.chessboard.board[to];
         colourTo = squareTo & COLOUR_MASK;
         pieceTo = squareTo & PIECE_MASK;
-        if ((colourTo !== colour) && (pieceTo === KNIGHT)) {
-          kingInCheck = true;
-          return kingInCheck;
+        if ((colourTo !== kingColour) && (pieceTo === KNIGHT)) {
+          return true;
         }
       }
 
-      return kingInCheck;
+      return false; // if no valid checks were already returned, then the king is not in check
     }
   }
 
@@ -475,8 +477,10 @@ export default class Engine {
     for (let i = 0; i <= 218; i++) {
       const move = pseudoMoves[i];
       if (move === 0) break;
-      const { from, to, castle } = Engine.decodeMoveData(move);
+      const { from, castle } = Engine.decodeMoveData(move);
       const currentTurn = this.chessboard.boardstates[this.chessboard.ply] & CURRENT_TURN;
+
+      // Check King doesn't cross through check
       if (castle === KS_CASTLE) {
         let isLegal = true;
         const king = this.chessboard.board[from];
@@ -524,7 +528,7 @@ export default class Engine {
   /**
    * TODO: PERFT FUNCTION +++ UNIT TESTS
    */
-  perft(depth: number, prev = "") {
+  perft(depth: number) {
     if (depth === 0) {
       // fs.appendFile("perft.txt", `${prev}\n`, err => null);
       return 1;
@@ -536,9 +540,41 @@ export default class Engine {
 
     for (let i = 0; i <= 218; i++) {
       if (moves[i] === 0) break;
+      const plyA = this.chessboard.ply;
+      const boardstateA = JSON.stringify(this.chessboard.boardstates[plyA]);
+      const boardposA = JSON.stringify(this.chessboard.board);
+
+
       this.makeMove(moves[i]);
-      nodes += this.perft(depth - 1);
+      if (depth === 0) {
+        const { from, to } = Engine.decodeMoveData(moves[i]);
+        const startNodes = nodes;
+        const start = `${ChessBoard.numberToCoordinate(from)}${ChessBoard.numberToCoordinate(to)}`;
+        nodes += this.perft(depth - 1);
+        fs.appendFile("perft.txt", `${start}: ${nodes - startNodes}\n`, err => null);
+      } else {
+        nodes += this.perft(depth - 1);
+      }
       this.unmakeMove();
+
+
+      const plyB = this.chessboard.ply;
+      const boardstateB = JSON.stringify(this.chessboard.boardstates[plyB]);
+      const boardposB = JSON.stringify(this.chessboard.board)
+
+      if (plyA !== plyB) console.log("ERR PLY")
+      if (boardstateA !== boardstateB) console.log("ERR STATE")
+      if (boardposA !== boardposB) {
+        const bA = JSON.parse(boardposA)
+        const bB = JSON.parse(boardposB)
+        Object.keys(bA).forEach(k => {
+          if (bA[k] !== bB[k]) {
+            const { from, to } = Engine.decodeMoveData(moves[i]);
+            console.log(Engine.decodeMoveData(moves[i]))
+            console.log("FROM:",from, "TO:",to, "SQUARE AT:", k, "BEFORE MAKE:", bA[k], "AFTER UNMAKE:", bB[k]);
+          }
+        })
+      }
     }
 
     return nodes;
@@ -550,12 +586,15 @@ export default class Engine {
 
 
 // Clear file contents
-// fs.writeFile("perft.txt", "", err => null);
+fs.writeFile("perft.txt", "", err => null);
 
-const engine = new Engine();
-
+const engine = new Engine("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/1R2K2R b Kkq - 1 1");
+engine.chessboard.printBoard("decimal");
 const start = process.hrtime.bigint();
-const perft = engine.perft(3);
+const perft = engine.perft(1);
 const end = process.hrtime.bigint();
-// console.log(perft/(Number(end-start)/1000000000));
+console.log(perft / (Number(end - start) / 1e9));
 console.log(perft);
+
+// NOT REVERSING CASTLE
+// 

@@ -155,6 +155,18 @@ describe("King Is In Check", () => {
       const engine = new Engine("k7/8/8/8/8/8/6p1/7K w - - 0 1");
       expect(engine.kingIsInCheck(WHITE)).toStrictEqual(true);
     });
+    test("12. k7/8/8/8/8/7q/7p/7K", () => {
+      const engine = new Engine("k7/8/8/8/8/7q/7p/7K w - - 0 1");
+      expect(engine.kingIsInCheck(WHITE)).toStrictEqual(false);
+    });
+    test("13. k7/8/8/8/8/8/8/5rnK", () => {
+      const engine = new Engine("k7/8/8/8/8/8/8/5rnK w - - 0 1");
+      expect(engine.kingIsInCheck(WHITE)).toStrictEqual(false);
+    });
+    test("14. 8/8/8/8/8/8/8/6kK", () => {
+      const engine = new Engine("8/8/8/8/8/8/8/6kK w - - 0 1");
+      expect(engine.kingIsInCheck(WHITE)).toStrictEqual(true);
+    });
   });
 
   describe("Black King", () => {
@@ -200,6 +212,18 @@ describe("King Is In Check", () => {
     });
     test("11. k7/8/8/8/8/8/6p1/7K", () => {
       const engine = new Engine("k7/1P6/8/8/8/8/8/7K b - - 0 1");
+      expect(engine.kingIsInCheck(BLACK)).toStrictEqual(true);
+    });
+    test("12. k7/P7/Q7/8/8/8/8/7K", () => {
+      const engine = new Engine("k7/P7/Q7/8/8/8/8/7K b - - 0 1");
+      expect(engine.kingIsInCheck(BLACK)).toStrictEqual(false);
+    });
+    test("13. kNR5/8/8/8/8/8/8/7K", () => {
+      const engine = new Engine("kNR5/8/8/8/8/8/8/7K b - - 0 1");
+      expect(engine.kingIsInCheck(BLACK)).toStrictEqual(false);
+    });
+    test("14. kK6/8/8/8/8/8/8/8", () => {
+      const engine = new Engine("kK6/8/8/8/8/8/8/8 b - - 0 1");
       expect(engine.kingIsInCheck(BLACK)).toStrictEqual(true);
     });
   });
